@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  habbit_hero:
+    build: . # Tells Docker Compose to build the image from the Dockerfile in the current directory
+    container_name: habbit-hero-app-compose
+    ports:
+      - "1488:8000" # Maps port 1488 on the host to port 8000 (APP_INTERNAL_PORT) in the container
+    volumes:
+      - ./characters:/app/characters
+      - ./Habbit Tracker App.html:/app/Habbit Tracker App.html
+    environment:
+      - APP_INTERNAL_PORT=8000 # Sets the internal port for the Python server
+    restart: unless-stopped
