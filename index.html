@@ -257,7 +257,7 @@
         const xpBarEl = document.getElementById('xpBar');
         const loginStreakEl = document.getElementById('loginStreak');
         const toastNotificationEl = document.getElementById('toastNotification');
-        
+
         const aiAvatarEl = document.getElementById('aiAvatar');
         const aiNameEl = document.getElementById('aiName');
         const aiSpeechBubbleEl = document.getElementById('aiSpeechBubble');
@@ -277,7 +277,7 @@
             checkAndPromptForApiKey().then(() => {
                 // API key should be set or user was prompted.
                 // If key exists, AI can proceed.
-                performDailyResetIfNeeded(); 
+                performDailyResetIfNeeded();
                 handleDailyLogin(); // This will trigger AI greeting if API key is ready
                 renderHabits();
                 updateGamificationDisplay();
@@ -319,7 +319,7 @@
         function loadData() {
             const storedHabits = localStorage.getItem(HABITS_LS_KEY);
             if (storedHabits) habits = JSON.parse(storedHabits).map(h => ({...h})); // Basic load
-            
+
             const storedUserProfile = localStorage.getItem(USER_PROFILE_LS_KEY);
             if (storedUserProfile) {
                 const loadedProfile = JSON.parse(storedUserProfile);
@@ -374,7 +374,7 @@
                 showToast("API Key cannot be empty.", "error");
             }
         }
-        
+
         // --- Daily Logic & Streaks ---
         function performDailyResetIfNeeded() { /* Unchanged from previous version */
             const todayDateStr = getTodayDateString();
@@ -549,7 +549,7 @@
             xpBarEl.classList.toggle('full', xpProgressPercent >= 100);
             loginStreakEl.textContent = userProfile.loginStreak;
         }
-        
+
         // --- UI Utilities ---
         let toastTimeout;
         function showToast(message, type = "success", duration = 3000) { /* Unchanged */
@@ -613,7 +613,7 @@
             const userTitle = getUserTitle(userProfile.level)
             const personaPrompt = getAiAttitudeAndPersona(userProfile.level);
             const fullPrompt = `You are an office secretary of ${userTitle}. Your name is ${AI_COMPANION_NAME}. Your additude towards ${userTitle} is ${personaPrompt}. You need to comment on latest event that ${userTitle} did. \n\nEvent: ${eventType}\nDetails: ${contextDetails}\n\n${AI_COMPANION_NAME}:`;
-            
+
             console.log("Gemini Prompt:", fullPrompt); // For debugging
 
             try {
@@ -663,7 +663,7 @@
                 if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
                     let AImessage = data.candidates[0].content.parts[0].text.trim();
                     // Basic clean-up: sometimes Gemini might add markdown or prefix with its name
-                    AImessage = AImessage.replace(/^Seraphina:?\s*/i, "").trim(); 
+                    AImessage = AImessage.replace(/^Seraphina:?\s*/i, "").trim();
                     displayAiMessage(AImessage);
                 } else if (data.promptFeedback && data.promptFeedback.blockReason) {
                      displayAiMessage(`I can't respond to that. (Reason: ${data.promptFeedback.blockReason})`, true);
