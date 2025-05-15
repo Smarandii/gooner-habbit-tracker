@@ -44,7 +44,7 @@ export function handleUserAddHabit() {
     clearNewHabitInput();
 
     if (geminiApiKey) {
-        const promptContext = `Your "Atomic Habit Hero" (${getUserTitle(userProfile.level)}) just added a new habit: "${habitName}".`;
+        const promptContext = `Your subordinate (${getUserTitle(userProfile.level)}) just added a new habit: "${habitName}".`;
         generateAiResponse("new_habit", promptContext);
     }
 }

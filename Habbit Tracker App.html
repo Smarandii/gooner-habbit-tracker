@@ -437,7 +437,7 @@
             newHabitInput.value = "";
 
             if (geminiApiKey) {
-                const promptContext = `Your "Atomic Habit Hero" just added a new habit: "${habitName}".`;
+                const promptContext = `Your subordinate (${getUserTitle(userProfile.level)}) just added a new habit: "${habitName}".`;
                 generateAiResponse("new_habit", promptContext);
             }
         }
@@ -530,7 +530,7 @@
                 updateAiAvatarImage(userProfile.level);
                 // AI could comment on level up too!
                 if (geminiApiKey) {
-                     generateAiResponse("level_up", `Your "Atomic Habit Hero" just reached Level ${userProfile.level}, titled "${getUserTitle(userProfile.level)}"! Their total XP is ${userProfile.xp}.`);
+                     generateAiResponse("level_up", `Your subordinate (${getUserTitle(userProfile.level)}) just reached Level ${userProfile.level}, titled "${getUserTitle(userProfile.level)}"! Their total XP is ${userProfile.xp}.`);
                 }
             }
         }
