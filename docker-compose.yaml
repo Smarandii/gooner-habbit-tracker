@@ -8,4 +8,9 @@ services:
       - "1488:8000"
     environment:
       - APP_INTERNAL_PORT=8000
+    volumes:
+      - ./characters:/app/characters
+      - ./index.html:/app/index.html
+      - ./css:/app/css
+      - ./js:/app/js
     restart: unless-stopped

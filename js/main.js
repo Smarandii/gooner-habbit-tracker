@@ -1,82 +1,88 @@
 import { loadData, saveData } from './data.js';
-import { renderHabits, updateGamificationDisplay, showToast, updateAiAvatarImage, promptForApiKeyModal, closeApiKeyModal, getApiKeyInput, setAiCompanionName, domElements } from './ui.js';
-import { performDailyResetIfNeeded, handleUserAddHabit } from './habits.js';
+import {
+    renderHabits, updateGamificationDisplay, showToast, updateAiAvatarImage,
+    promptForApiKeyModal, closeApiKeyModal, getApiKeyInput, setAiCompanionName, domElements
+} from './ui.js';
+import { performDailyResetIfNeeded, handleUserAddHabit as processUserAddedHabit } from './habits.js'; // Renamed import for clarity
 import { addXP, XP_FOR_DAILY_LOGIN, getUserTitle } from './gamification.js';
-import { checkAndPromptForApiKey, handleSaveApiKey, generateAiResponse } from './api.js';
-import { userProfile, geminiApiKey } from './state.js'; // For direct access where needed
+import { checkAndPromptForApiKey, handleSaveApiKey as processSaveApiKey, generateAiResponse } from './api.js';
+import { userProfile, geminiApiKey, setUserProfile } from './state.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
 import { AI_COMPANION_NAME } from './config.js';
 
-function handleDailyLoginLogic(skipAiGreeting = false) {
+function handleDailyLogin(skipAiGreeting = false) {
     const todayStr = getTodayDateString();
     const previousLoginDate = userProfile.lastLoginDate;
 
-    if (previousLoginDate !== todayStr) {
-        if (previousLoginDate === getYesterdayDateString()) {
-            userProfile.loginStreak++;
-        } else {
-            userProfile.loginStreak = 1;
-        }
-        userProfile.lastLoginDate = todayStr;
+    let profileChanged = false;
+    let tempProfile = { ...userProfile };
 
-        addXP(XP_FOR_DAILY_LOGIN); // This will call checkLevelUp -> updateGamificationDisplay
-        showToast(`Welcome back! +${XP_FOR_DAILY_LOGIN} XP for daily visit! Login Streak: ${userProfile.loginStreak}`, "success");
-        // No need to call updateGamificationDisplay here, addXP handles it.
+    if (tempProfile.lastLoginDate !== todayStr) {
+        if (tempProfile.lastLoginDate === getYesterdayDateString()) {
+            tempProfile.loginStreak++;
+        } else {
+            tempProfile.loginStreak = 1;
+        }
+        tempProfile.lastLoginDate = todayStr;
+        profileChanged = true;
+
+        addXP(XP_FOR_DAILY_LOGIN);
+        showToast(`Welcome back! +${XP_FOR_DAILY_LOGIN} XP for daily visit! Login Streak: ${tempProfile.loginStreak}`, "success");
 
         if (!skipAiGreeting && geminiApiKey) {
-            const promptContext = `The user, your "${getUserTitle(userProfile.level)}", just logged in. Their current login streak is ${userProfile.loginStreak} days. Today is ${new Date().toLocaleDateString()}.`;
+            const promptContext = `The user, your "${getUserTitle(tempProfile.level)}", just logged in. Their current login streak is ${tempProfile.loginStreak} days. Today is ${new Date().toLocaleDateString()}.`;
             generateAiResponse("daily_login", promptContext);
-        } else if (!geminiApiKey) {
-            // displayAiMessage is in ui.js, ensure it's exported and imported if needed here or called from ui context
         }
     }
-    // Always update UI elements related to login, even if no XP was awarded (e.g. same day reload)
+
+    // If profile was changed by login logic but not by addXP (if XP was 0), ensure it's set and saved.
+    if (profileChanged) {
+        setUserProfile(tempProfile); // Update state with new login data
+        saveData(); // Save changes related to login
+    }
+
+    // Always update UI from the potentially modified state
     domElements.loginStreakEl.textContent = userProfile.loginStreak;
-    updateGamificationDisplay(); // Ensure consistency
-    saveData(); // Save after potential login streak/date updates
+    updateGamificationDisplay(); // This ensures gamification UI is also up-to-date
 }
 
 
-function initApp() {
-    setAiCompanionName(AI_COMPANION_NAME); // From ui.js
-    loadData();
-    updateAiAvatarImage(userProfile.level); // Initial avatar based on loaded level
+async function initApp() {
+    setAiCompanionName(AI_COMPANION_NAME);
+    loadData(); // Loads data into state variables (userProfile, habits, geminiApiKey)
+    updateAiAvatarImage(userProfile.level); // Initial avatar
 
-    checkAndPromptForApiKey()
-        .then(() => {
-            performDailyResetIfNeeded();
-            handleDailyLoginLogic();
-            renderHabits();
-            updateGamificationDisplay(); // This updates level display too
-        })
-        .catch(error => {
-            console.error("API Key setup failed:", error);
-            // displayAiMessage is in ui.js, ensure it's exported and imported
-            performDailyResetIfNeeded();
-            handleDailyLoginLogic(true); // Skip AI greeting
-            renderHabits();
-            updateGamificationDisplay();
-        })
-        .finally(() => {
-            // This ensures UI is updated correctly even if promises have complex paths
-            updateAiAvatarImage(userProfile.level);
-            updateGamificationDisplay();
-        });
+    try {
+        await checkAndPromptForApiKey(); // Waits for API key check/prompt
+        // If API key is missing and modal is shown, the rest might execute before key is entered.
+        // This part of the logic could be refined if the modal needs to block execution.
+        // For now, assuming if checkAndPromptForApiKey resolves, we proceed.
+    } catch (error) {
+        console.warn("API Key setup or check failed initially:", error);
+        // ui.js's displayAiMessage should handle showing error to user.
+    }
 
+    performDailyResetIfNeeded();
+    handleDailyLogin(); // Handles login XP, streak, and AI greeting
+    renderHabits();
+    updateGamificationDisplay();
+    updateAiAvatarImage(userProfile.level); // Ensure avatar is correct after all init steps
 
-    // Event Listeners for UI elements
-    domElements.addHabitBtn.addEventListener('click', handleUserAddHabit);
-    domElements.newHabitInput.addEventListener('keypress', e => e.key === 'Enter' && handleUserAddHabit());
+    // Event Listeners
+    domElements.addHabitBtn.addEventListener('click', processUserAddedHabit);
+    domElements.newHabitInput.addEventListener('keypress', e => {
+        if (e.key === 'Enter') processUserAddedHabit();
+    });
 
     domElements.saveApiKeyBtn.addEventListener('click', () => {
         const inputKey = getApiKeyInput();
-        if (handleSaveApiKey(inputKey)) { // handleSaveApiKey now returns true on success
+        if (processSaveApiKey(inputKey)) { // processSaveApiKey returns true on success
             closeApiKeyModal();
         }
     });
 
-    document.getElementById('changeApiKeyBtn').addEventListener('click', () => { // Assuming changeApiKeyBtn is still in HTML
-        promptForApiKeyModal(true, geminiApiKey); // Pass current key and force
+    domElements.changeApiKeyBtn.addEventListener('click', () => {
+        promptForApiKeyModal(true, geminiApiKey); // Pass current key from state and force prompt
     });
 }
 

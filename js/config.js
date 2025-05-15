@@ -1,7 +1,6 @@
-// js/config.js
-export const HABITS_LS_KEY = 'atomicHabitsApp_habits_v4'; // Increment version
-export const USER_PROFILE_LS_KEY = 'atomicHabitsApp_userProfile_v4';
-export const GEMINI_API_KEY_LS_KEY = 'atomicHabitsApp_geminiApiKey_v1'; // Keep if structure is same
+export const HABITS_LS_KEY = 'atomicHabitsApp_habits_v3';
+export const USER_PROFILE_LS_KEY = 'atomicHabitsApp_userProfile_v3';
+export const GEMINI_API_KEY_LS_KEY = 'atomicHabitsApp_geminiApiKey_v1';
 
 export const BASE_XP_PER_HABIT = 10;
 export const XP_FOR_DAILY_LOGIN = 5;
