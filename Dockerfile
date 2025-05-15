@@ -5,6 +5,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 COPY ./index.html .
+COPY ./favicon.ico .
 COPY ./characters /app/characters/
 COPY ./css /app/css/
 COPY ./js /app/js/
