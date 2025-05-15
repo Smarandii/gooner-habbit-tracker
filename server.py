@@ -12,7 +12,7 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == '/':
-            self.path = '/index.html'  # CHANGED HERE
+            self.path = '/index.html'
 
         # Add MIME types for .js files if your system doesn't serve them correctly
         # Most modern SimpleHTTPRequestHandler versions handle this.
