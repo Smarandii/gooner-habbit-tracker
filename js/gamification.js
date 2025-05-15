@@ -49,7 +49,7 @@ export function getUserTitle(level) {
     return LEVEL_TITLES.slice().reverse().find(lt => level >= lt.minLevel)?.title || LEVEL_TITLES[0].title;
 }
 
-function calculateStreakBonus(streak) {
+export function calculateStreakBonus(streak) {
 	if (!streak || streak <= 0) return 0; const s = Math.min(streak, 30);
 	if (s >= 30) return 20; if (s >= 20) return 15; if (s >= 10) return 10;
 	if (s >= 5) return 5; if (s >= 1) return 2; return 0;

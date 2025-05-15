@@ -4,7 +4,8 @@ import {
     promptForApiKeyModal, closeApiKeyModal, getApiKeyInput, setAiCompanionName, domElements
 } from './ui.js';
 import { performDailyResetIfNeeded, handleUserAddHabit as processUserAddedHabit } from './habits.js'; // Renamed import for clarity
-import { addXP, XP_FOR_DAILY_LOGIN, getUserTitle } from './gamification.js';
+import { addXP, getUserTitle } from './gamification.js';
+import { XP_FOR_DAILY_LOGIN } from './config.js';
 import { checkAndPromptForApiKey, handleSaveApiKey as processSaveApiKey, generateAiResponse } from './api.js';
 import { userProfile, geminiApiKey, setUserProfile } from './state.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
