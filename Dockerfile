@@ -4,10 +4,10 @@ FROM python:3.9-slim
 # Set the working directory in the container
 WORKDIR /app
 
-COPY index.html .
-COPY characters/* ./characters/
-COPY css/* ./css/
-COPY js/* ./js/
+COPY ./index.html .
+COPY ./characters /app/characters/
+COPY ./css /app/css/
+COPY ./js /app/js/
 COPY server.py .
 
 # Define environment variable for Python output and internal port
