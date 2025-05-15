@@ -5,9 +5,9 @@ FROM python:3.9-slim
 WORKDIR /app
 
 COPY index.html .
-COPY characters ./characters
-COPY css ./css
-COPY js ./js
+COPY characters/* ./characters/
+COPY css/* ./css/
+COPY js/* ./js/
 COPY server.py .
 
 # Define environment variable for Python output and internal port
