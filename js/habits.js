@@ -1,4 +1,3 @@
-// js/habits.js
 import { habits, userProfile, geminiApiKey, setHabits, setUserProfile } from './state.js';
 import { BASE_XP_PER_HABIT } from './config.js';
 import { renderHabits, showToast, updateGamificationDisplay, getNewHabitInput, clearNewHabitInput } from './ui.js';
@@ -7,8 +6,6 @@ import { generateAiResponse } from './api.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
 import { saveData } from './data.js';
 
-// --- Existing Functions (performDailyResetIfNeeded, handleUserAddHabit, _addHabitToList, deleteHabit, toggleHabitCompletion) ---
-// These remain unchanged from your last provided version.
 
 export function performDailyResetIfNeeded() {
     const todayDateStr = getTodayDateString();
@@ -71,23 +68,8 @@ function _addHabitToList(name) {
     showToast(`Habit "${name}" added!`);
 }
 
-export function deleteHabit(habitId) {
-    const habitIndex = habits.findIndex(h => h.id === habitId);
-    if (habitIndex > -1) {
-        const habitToDelete = habits[habitIndex];
-        if (habitToDelete.completedToday) {
-            addXP(-(habitToDelete.baseXpValue + calculateStreakBonus(habitToDelete.streak)));
-        }
-        const habitName = habitToDelete.name;
-        const updatedHabits = habits.filter(h => h.id !== habitId);
-        setHabits(updatedHabits);
-
-        saveData();
-        renderHabits();
-        updateGamificationDisplay();
-        showToast(`Habit "${habitName}" deleted.`);
-    }
-}
+// --- toggleHabitCompletion, startEditHabit, saveHabitEdit, cancelHabitEdit, moveHabitUp, moveHabitDown ---
+// (These functions remain unchanged from your last provided version)
 
 export function toggleHabitCompletion(habitId) {
     const habitIndex = habits.findIndex(h => h.id === habitId);
@@ -126,9 +108,6 @@ export function toggleHabitCompletion(habitId) {
     updateGamificationDisplay();
 }
 
-
-// --- Functions for Editing and Reordering ---
-
 export function startEditHabit(habitId) {
     const updatedHabits = habits.map(h =>
         h.id === habitId ? { ...h, isEditing: true, originalNameBeforeEdit: h.name } : { ...h, isEditing: false }
@@ -143,16 +122,15 @@ export function saveHabitEdit(habitId, newNameInput) {
     if (habitIndex === -1) return;
 
     const oldHabit = habits[habitIndex];
-    const oldName = oldHabit.originalNameBeforeEdit || oldHabit.name; // Get the name before edit started
+    const oldName = oldHabit.originalNameBeforeEdit || oldHabit.name;
 
     if (name === "") {
         showToast("Habit name cannot be empty.", "error");
         const editInput = document.querySelector(`.edit-input[data-habit-id="${habitId}"]`);
-        if(editInput) editInput.value = oldName; // Revert input field to original name
+        if(editInput) editInput.value = oldName;
         return;
     }
 
-    // Check if the name actually changed to avoid unnecessary AI calls
     const nameHasChanged = oldName !== name;
 
     const updatedHabits = habits.map(h =>
@@ -163,7 +141,7 @@ export function saveHabitEdit(habitId, newNameInput) {
     renderHabits();
     showToast("Habit updated!", "success");
 
-    if (geminiApiKey && nameHasChanged) { // Only trigger AI if the name actually changed
+    if (geminiApiKey && nameHasChanged) {
         const promptContext = `The user, "${getUserTitle(userProfile.level)}", just edited a habit. It was originally named "${oldName}" and is now named "${name}".`;
         generateAiResponse("habit_edit", promptContext);
     }
@@ -200,5 +178,32 @@ export function moveHabitDown(habitId) {
         setHabits(updatedHabits);
         saveData();
         renderHabits();
+    }
+}
+
+// MODIFIED FUNCTION
+export function deleteHabit(habitId) {
+    const habitIndex = habits.findIndex(h => h.id === habitId);
+    if (habitIndex > -1) {
+        const habitToDelete = habits[habitIndex];
+        const habitName = habitToDelete.name; // Get name before deleting
+
+        if (habitToDelete.completedToday) {
+            addXP(-(habitToDelete.baseXpValue + calculateStreakBonus(habitToDelete.streak)));
+        }
+
+        const updatedHabits = habits.filter(h => h.id !== habitId);
+        setHabits(updatedHabits);
+
+        saveData();
+        renderHabits();
+        updateGamificationDisplay();
+        showToast(`Habit "${habitName}" deleted.`);
+
+        // Notify AI about the deletion
+        if (geminiApiKey) {
+            const promptContext = `The user, "${getUserTitle(userProfile.level)}", just deleted the habit named: "${habitName}".`;
+            generateAiResponse("habit_delete", promptContext);
+        }
     }
 }
