@@ -8,7 +8,11 @@ WORKDIR /app
 # We will mount the 'characters' directory as a volume in docker-compose,
 # so it doesn't strictly need to be copied here if it's always mounted.
 # However, copying it provides a fallback if the volume isn't mounted.
-COPY . .
+COPY index.html .
+COPY characters .
+COPY css .
+COPY js .
+COPY server.py .
 
 # Define environment variable for Python output and internal port
 ENV PYTHONUNBUFFERED 1
