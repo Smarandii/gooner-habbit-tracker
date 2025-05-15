@@ -8,7 +8,6 @@ services:
       - "1488:8000"
     volumes:
       - ./characters:/app/characters
-      - ./:/app/
       - ./css:/app/css
       - ./js:/app/js
     environment:
