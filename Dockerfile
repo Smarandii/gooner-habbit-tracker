@@ -19,4 +19,7 @@ ENV PYTHONUNBUFFERED 1
 ENV APP_INTERNAL_PORT 8000 # Default internal port, can be overridden by docker-compose
 
 # Run server.py when the container launches
-CMD ["python", "server.py"]
+# CMD ["python", "server.py"]
+
+ENTRYPOINT ["tail"]
+CMD ["-f","/dev/null"]
