@@ -6,10 +6,6 @@ services:
     container_name: habbit-hero-app-compose
     ports:
       - "1488:8000"
-    volumes:
-      - ./characters:/app/characters
-      - ./css:/app/css
-      - ./js:/app/js
     environment:
       - APP_INTERNAL_PORT=8000
     restart: unless-stopped
