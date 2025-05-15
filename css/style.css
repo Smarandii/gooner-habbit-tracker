@@ -148,3 +148,31 @@ button.delete-btn:hover { background-color: #c0392b; }
 #apiKeyInput { width: calc(100% - 24px); padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; }
 #saveApiKeyBtn { background-color: #2ecc71; padding: 12px 25px; font-size: 1em; border-radius: 5px; }
 #saveApiKeyBtn:hover { background-color: #27ae60; }
+
+.habit-controls button { /* General style for controls within a habit item */
+    background-color: #bdc3c7;
+    color: #2c3e50;
+    padding: 5px 8px;
+    font-size: 0.8em;
+    border-radius: 3px;
+    margin-left: 5px;
+    border: none;
+    cursor: pointer;
+}
+.habit-controls button:hover {
+    background-color: #95a5a6;
+}
+.habit-controls button:disabled {
+    background-color: #ecf0f1;
+    color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.habit-item .edit-input {
+    flex-grow: 1;
+    padding: 8px;
+    font-size: 1em;
+    border: 1px solid #3498db;
+    border-radius: 3px;
+    margin-right: 10px; /* Space before save/cancel buttons */
+}

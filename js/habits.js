@@ -1,16 +1,22 @@
-import { habits, userProfile, geminiApiKey, setHabits } from './state.js';
-import { BASE_XP_PER_HABIT, AI_COMPANION_NAME } from './config.js';
+// js/habits.js
+import { habits, userProfile, geminiApiKey, setHabits, setUserProfile } from './state.js';
+import { BASE_XP_PER_HABIT } from './config.js';
 import { renderHabits, showToast, updateGamificationDisplay, getNewHabitInput, clearNewHabitInput } from './ui.js';
 import { addXP, calculateStreakBonus, getUserTitle } from './gamification.js';
 import { generateAiResponse } from './api.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
 import { saveData } from './data.js';
 
+// --- Existing Functions (performDailyResetIfNeeded, handleUserAddHabit, _addHabitToList, deleteHabit, toggleHabitCompletion) ---
+// Keep them as they are, no changes needed for these core functionalities based on the request.
+// Make sure calculateStreakBonus is correctly imported/available if used here (it's in gamification.js)
+
 export function performDailyResetIfNeeded() {
     const todayDateStr = getTodayDateString();
     if (userProfile.lastDailyReset !== todayDateStr) {
         const yesterdayDateStr = getYesterdayDateString();
         let streaksBroken = 0; let streaksMaintained = 0;
+
         const updatedHabits = habits.map(habit => {
             let newStreak = habit.streak;
             if (habit.lastCompletedDate !== yesterdayDateStr) {
@@ -18,19 +24,22 @@ export function performDailyResetIfNeeded() {
                 if (habit.streak > 0 && habitCreationDate < todayDateStr) {
                     newStreak = 0; streaksBroken++;
                 }
-            } else { if (habit.streak > 0) streaksMaintained++; }
+            } else {
+                if (habit.streak > 0) streaksMaintained++;
+            }
             return { ...habit, completedToday: false, streak: newStreak };
         });
 
         setHabits(updatedHabits);
-        userProfile.lastDailyReset = todayDateStr; // Directly modify from state or pass setUserProfile
+        const newProfile = { ...userProfile, lastDailyReset: todayDateStr };
+        setUserProfile(newProfile);
 
         let resetMsg = "Daily reset. ";
         if(streaksBroken > 0) resetMsg += `${streaksBroken} habit streak(s) broken. `;
         if(streaksMaintained > 0) resetMsg += `${streaksMaintained} maintained. `;
         showToast(resetMsg, "info", 4000);
         saveData();
-        renderHabits(); // Re-render after reset
+        renderHabits();
     }
 }
 
@@ -40,11 +49,11 @@ export function handleUserAddHabit() {
         showToast("Habit name cannot be empty.", "error");
         return;
     }
-    _addHabitToList(habitName); // Internal function
+    _addHabitToList(habitName);
     clearNewHabitInput();
 
     if (geminiApiKey) {
-        const promptContext = `Your subordinate (${getUserTitle(userProfile.level)}) just added a new habit: "${habitName}".`;
+        const promptContext = `The user, known as "${getUserTitle(userProfile.level)}", just added a new habit: "${habitName}".`;
         generateAiResponse("new_habit", promptContext);
     }
 }
@@ -52,10 +61,12 @@ export function handleUserAddHabit() {
 function _addHabitToList(name) {
     const newHabit = {
         id: Date.now().toString(), name: name, createdAt: new Date().toISOString(),
-        baseXpValue: BASE_XP_PER_HABIT, completedToday: false, streak: 0, lastCompletedDate: null
+        baseXpValue: BASE_XP_PER_HABIT, completedToday: false, streak: 0, lastCompletedDate: null,
+        isEditing: false // Add editing state
     };
     const updatedHabits = [...habits, newHabit];
     setHabits(updatedHabits);
+
     saveData();
     renderHabits();
     showToast(`Habit "${name}" added!`);
@@ -83,11 +94,11 @@ export function toggleHabitCompletion(habitId) {
     const habitIndex = habits.findIndex(h => h.id === habitId);
     if (habitIndex === -1) return;
 
-    let habit = { ...habits[habitIndex] }; // Work with a copy
+    let habit = { ...habits[habitIndex] };
     const todayStr = getTodayDateString();
     const yesterdayStr = getYesterdayDateString();
 
-    if (!habit.completedToday) { // Completing
+    if (!habit.completedToday) {
         habit.completedToday = true;
         if (habit.lastCompletedDate === yesterdayStr) habit.streak++;
         else if (habit.lastCompletedDate !== todayStr) habit.streak = 1;
@@ -114,4 +125,70 @@ export function toggleHabitCompletion(habitId) {
     saveData();
     renderHabits();
     updateGamificationDisplay();
+}
+
+
+// --- New Functions for Editing and Reordering ---
+
+export function startEditHabit(habitId) {
+    const updatedHabits = habits.map(h =>
+        h.id === habitId ? { ...h, isEditing: true, originalNameBeforeEdit: h.name } : { ...h, isEditing: false }
+    );
+    setHabits(updatedHabits);
+    renderHabits();
+}
+
+export function saveHabitEdit(habitId, newName) {
+    const name = newName.trim();
+    if (name === "") {
+        showToast("Habit name cannot be empty.", "error");
+        // Optionally, revert to original name or keep input open
+        const habit = habits.find(h => h.id === habitId);
+        if (habit) {
+             const editInput = document.querySelector(`.edit-input[data-habit-id="${habitId}"]`);
+             if(editInput) editInput.value = habit.originalNameBeforeEdit || habit.name; // Revert input field
+        }
+        return;
+    }
+    const updatedHabits = habits.map(h =>
+        h.id === habitId ? { ...h, name: name, isEditing: false, originalNameBeforeEdit: undefined } : h
+    );
+    setHabits(updatedHabits);
+    saveData();
+    renderHabits();
+    showToast("Habit updated!", "success");
+}
+
+export function cancelHabitEdit(habitId) {
+    const updatedHabits = habits.map(h =>
+        h.id === habitId ? { ...h, name: h.originalNameBeforeEdit || h.name, isEditing: false, originalNameBeforeEdit: undefined } : h
+    );
+    setHabits(updatedHabits);
+    renderHabits();
+}
+
+export function moveHabitUp(habitId) {
+    const index = habits.findIndex(h => h.id === habitId);
+    if (index > 0) {
+        const updatedHabits = [...habits];
+        const temp = updatedHabits[index - 1];
+        updatedHabits[index - 1] = updatedHabits[index];
+        updatedHabits[index] = temp;
+        setHabits(updatedHabits);
+        saveData();
+        renderHabits();
+    }
+}
+
+export function moveHabitDown(habitId) {
+    const index = habits.findIndex(h => h.id === habitId);
+    if (index < habits.length - 1 && index !== -1) {
+        const updatedHabits = [...habits];
+        const temp = updatedHabits[index + 1];
+        updatedHabits[index + 1] = updatedHabits[index];
+        updatedHabits[index] = temp;
+        setHabits(updatedHabits);
+        saveData();
+        renderHabits();
+    }
 }

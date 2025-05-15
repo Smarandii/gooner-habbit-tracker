@@ -1,13 +1,21 @@
+// js/ui.js
 import { habits, userProfile } from './state.js';
-import { AVATAR_IMAGES, DEFAULT_AVATAR_PATH, LEVEL_TITLES } from './config.js';
-import { toggleHabitCompletion, deleteHabit } from './habits.js';
+import { AVATAR_IMAGES, DEFAULT_AVATAR_PATH } from './config.js'; // Removed LEVEL_TITLES as getUserTitle is sufficient
+import { 
+    toggleHabitCompletion, 
+    deleteHabit, 
+    startEditHabit, // New
+    saveHabitEdit,  // New
+    cancelHabitEdit,// New
+    moveHabitUp,    // New
+    moveHabitDown   // New
+} from './habits.js';
 import { getUserTitle } from './gamification.js';
 
-// Declare elements object, but don't populate it immediately
-export const domElements = {};
+export const domElements = {}; // Populated by initUiElements
 
-// Function to initialize (populate) the domElements
 export function initUiElements() {
+    // ... (keep existing element selections)
     domElements.habitsList = document.getElementById('habitsList');
     domElements.currentLevelEl = document.getElementById('currentLevel');
     domElements.levelTitleEl = document.getElementById('levelTitle');
@@ -25,31 +33,23 @@ export function initUiElements() {
     domElements.saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
     domElements.addHabitBtn = document.getElementById('addHabitBtn');
     domElements.changeApiKeyBtn = document.getElementById('changeApiKeyBtn');
-
-    // Verify elements (optional debug step)
-    // for (const key in domElements) {
-    //     if (!domElements[key]) {
-    //         console.error(`UI Element not found: ${key}`);
-    //     }
-    // }
 }
 
-
 export function renderHabits() {
-    if (!domElements.habitsList) return; // Guard clause
+    if (!domElements.habitsList) return;
     domElements.habitsList.innerHTML = "";
-    // ... (rest of renderHabits remains the same, using domElements.habitsList etc.)
     if (habits.length === 0) {
         domElements.habitsList.innerHTML = "<p style='text-align:center; color:#777;'>No habits yet. Add one!</p>";
         return;
     }
-    habits.forEach(habit => {
+
+    habits.forEach((habit, index) => {
         const li = document.createElement('li');
         li.classList.add('habit-item');
         li.dataset.habitId = habit.id;
-
         if (habit.completedToday) li.classList.add('completed-today');
 
+        // Streak classes
         if (habit.streak >= 40 && AVATAR_IMAGES.level_40) li.classList.add('streak-40'); 
         else if (habit.streak >= 30) li.classList.add('streak-30');
         else if (habit.streak >= 20) li.classList.add('streak-20');
@@ -60,37 +60,100 @@ export function renderHabits() {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = habit.completedToday;
-        checkbox.addEventListener('change', () => toggleHabitCompletion(habit.id)); // toggleHabitCompletion needs to be imported into ui.js if used like this, or passed as callback
+        checkbox.addEventListener('change', () => toggleHabitCompletion(habit.id));
+        li.appendChild(checkbox);
 
         const habitInfoDiv = document.createElement('div');
         habitInfoDiv.classList.add('habit-info');
 
-        const nameSpan = document.createElement('span');
-        nameSpan.classList.add('habit-name');
-        nameSpan.textContent = habit.name;
-        habitInfoDiv.appendChild(nameSpan);
+        if (habit.isEditing) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = habit.name;
+            input.classList.add('edit-input');
+            input.dataset.habitId = habit.id; // For easy access
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    saveHabitEdit(habit.id, input.value);
+                }
+            });
+            // Automatically focus the input when editing starts
+            // Need to defer focus slightly for the element to be in the DOM
+            setTimeout(() => input.focus(), 0); 
+            habitInfoDiv.appendChild(input);
 
-        const streakSpan = document.createElement('span');
-        streakSpan.classList.add('habit-streak-display');
-        streakSpan.textContent = `Streak: ${habit.streak} day${habit.streak === 1 ? '' : 's'}${habit.streak > 0 ? ' 🔥' : ''}`;
-        habitInfoDiv.appendChild(streakSpan);
-        
-        const deleteBtn = document.createElement('button');
-        deleteBtn.classList.add('delete-btn');
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.addEventListener('click', () => deleteHabit(habit.id)); // deleteHabit needs to be imported into ui.js if used like this, or passed as callback
-        
-        li.appendChild(checkbox);
+            const saveBtn = document.createElement('button');
+            saveBtn.textContent = 'Save';
+            saveBtn.classList.add('save-edit-btn'); // For specific styling if needed
+            saveBtn.addEventListener('click', () => saveHabitEdit(habit.id, input.value));
+            habitInfoDiv.appendChild(saveBtn);
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.classList.add('cancel-edit-btn');
+            cancelBtn.addEventListener('click', () => cancelHabitEdit(habit.id));
+            habitInfoDiv.appendChild(cancelBtn);
+
+        } else {
+            const nameSpan = document.createElement('span');
+            nameSpan.classList.add('habit-name');
+            nameSpan.textContent = habit.name;
+            nameSpan.addEventListener('dblclick', () => startEditHabit(habit.id)); // Edit on double click
+            habitInfoDiv.appendChild(nameSpan);
+
+            const streakSpan = document.createElement('span');
+            streakSpan.classList.add('habit-streak-display');
+            streakSpan.textContent = `Streak: ${habit.streak} day${habit.streak === 1 ? '' : 's'}${habit.streak > 0 ? ' 🔥' : ''}`;
+            habitInfoDiv.appendChild(streakSpan);
+        }
         li.appendChild(habitInfoDiv);
-        li.appendChild(deleteBtn);
+        
+        // Controls container (Edit, Delete, Reorder)
+        const controlsDiv = document.createElement('div');
+        controlsDiv.classList.add('habit-controls');
+
+        if (!habit.isEditing) { // Only show these if not currently editing
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edit';
+            editBtn.title = "Edit habit name";
+            editBtn.addEventListener('click', () => startEditHabit(habit.id));
+            controlsDiv.appendChild(editBtn);
+        }
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.classList.add('delete-btn'); // Existing class for styling
+        deleteBtn.textContent = 'Del';
+        deleteBtn.title = "Delete habit";
+        deleteBtn.addEventListener('click', () => deleteHabit(habit.id));
+        controlsDiv.appendChild(deleteBtn);
+
+        // Reorder buttons
+        const upBtn = document.createElement('button');
+        upBtn.innerHTML = '▲'; // Up arrow
+        upBtn.title = "Move up";
+        upBtn.disabled = index === 0; // Disable if first item
+        upBtn.addEventListener('click', () => moveHabitUp(habit.id));
+        controlsDiv.appendChild(upBtn);
+
+        const downBtn = document.createElement('button');
+        downBtn.innerHTML = '▼'; // Down arrow
+        downBtn.title = "Move down";
+        downBtn.disabled = index === habits.length - 1; // Disable if last item
+        downBtn.addEventListener('click', () => moveHabitDown(habit.id));
+        controlsDiv.appendChild(downBtn);
+
+        li.appendChild(controlsDiv);
         domElements.habitsList.appendChild(li);
     });
 }
 
+// ... (keep updateGamificationDisplay, showToast, displayAiMessage, updateAiAvatarImage)
+// ... (keep promptForApiKeyModal, closeApiKeyModal, getNewHabitInput, clearNewHabitInput, getApiKeyInput, setAiCompanionName)
+// Ensure these functions are still exported if they were.
+
 export function updateGamificationDisplay() {
-    if (!domElements.currentLevelEl) return; // Guard clause
+    if (!domElements.currentLevelEl) return; 
     domElements.currentLevelEl.textContent = userProfile.level;
-    // ... (rest of updateGamificationDisplay remains the same)
     domElements.levelTitleEl.textContent = getUserTitle(userProfile.level);
     
     const xpForLevel = userProfile.xpForNextLevel > 0 ? userProfile.xpForNextLevel : 1;
@@ -106,21 +169,19 @@ export function updateGamificationDisplay() {
 
 let toastTimeout;
 export function showToast(message, type = "success", duration = 3000) {
-    if (!domElements.toastNotificationEl) return; // Guard
-    // ... (rest of showToast remains the same)
+    if (!domElements.toastNotificationEl) return; 
     domElements.toastNotificationEl.textContent = message;
     domElements.toastNotificationEl.className = 'toast show';
     domElements.toastNotificationEl.style.backgroundColor = type === "error" ? "#e74c3c" : (type === "info" ? "#3498db" : "#2ecc71");
     
     clearTimeout(toastTimeout);
     toastTimeout = setTimeout(() => {
-        domElements.toastNotificationEl.className = domElements.toastNotificationEl.className.replace("show", "");
+        if(domElements.toastNotificationEl) domElements.toastNotificationEl.className = domElements.toastNotificationEl.className.replace("show", "");
     }, duration);
 }
 
 export function displayAiMessage(message, isError = false, isLoading = false) {
-    if (!domElements.aiSpeechBubbleEl) return; // Guard
-    // ... (rest of displayAiMessage remains the same)
+    if (!domElements.aiSpeechBubbleEl) return; 
     domElements.aiSpeechBubbleEl.classList.remove('thinking', 'error');
     if (isLoading) domElements.aiSpeechBubbleEl.classList.add('thinking');
     if (isError) domElements.aiSpeechBubbleEl.classList.add('error');
@@ -128,8 +189,7 @@ export function displayAiMessage(message, isError = false, isLoading = false) {
 }
 
 export function updateAiAvatarImage(level) {
-    if (!domElements.aiAvatarEl) return; // Guard
-    // ... (rest of updateAiAvatarImage remains the same)
+    if (!domElements.aiAvatarEl) return; 
     let selectedAvatarFile = DEFAULT_AVATAR_PATH;
     const sortedLevels = Object.keys(AVATAR_IMAGES)
                              .map(key => parseInt(key.split('_')[1]))
@@ -148,43 +208,40 @@ export function updateAiAvatarImage(level) {
     domElements.aiAvatarEl.src = selectedAvatarFile;
     domElements.aiAvatarEl.onerror = () => {
         console.warn(`Failed to load avatar: ${selectedAvatarFile}. Falling back to default.`);
-        domElements.aiAvatarEl.src = DEFAULT_AVATAR_PATH;
+        if(domElements.aiAvatarEl) domElements.aiAvatarEl.src = DEFAULT_AVATAR_PATH;
     };
 }
 
 export function promptForApiKeyModal(force = false, currentKey = '') {
-    if (!domElements.apiKeyModalEl) return; // Guard
-    // ... (rest of promptForApiKeyModal remains the same)
+    if (!domElements.apiKeyModalEl) return; 
      if (!userProfile.geminiApiKey || force) { 
         domElements.apiKeyModalEl.style.display = 'flex';
-        domElements.apiKeyInputEl.value = currentKey || '';
-        domElements.apiKeyInputEl.focus();
+        if(domElements.apiKeyInputEl) domElements.apiKeyInputEl.value = currentKey || '';
+        if(domElements.apiKeyInputEl) domElements.apiKeyInputEl.focus();
     }
 }
 
 export function closeApiKeyModal() {
-    if (!domElements.apiKeyModalEl) return; // Guard
+    if (!domElements.apiKeyModalEl) return; 
     domElements.apiKeyModalEl.style.display = 'none';
 }
 
 export function getNewHabitInput() {
-    if (!domElements.newHabitInput) return ''; // Guard
+    if (!domElements.newHabitInput) return ''; 
     return domElements.newHabitInput.value.trim();
 }
 
 export function clearNewHabitInput() {
-    if (!domElements.newHabitInput) return; // Guard
+    if (!domElements.newHabitInput) return; 
     domElements.newHabitInput.value = "";
 }
 
 export function getApiKeyInput() {
-    if (!domElements.apiKeyInputEl) return ''; // Guard
+    if (!domElements.apiKeyInputEl) return ''; 
     return domElements.apiKeyInputEl.value.trim();
 }
 
 export function setAiCompanionName(name) {
-    if (!domElements.aiNameEl) return; // Guard
+    if (!domElements.aiNameEl) return; 
     domElements.aiNameEl.textContent = name;
 }
-
-// domElements is already exported, no need to export it again here.
