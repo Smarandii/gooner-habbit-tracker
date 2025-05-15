@@ -8,8 +8,7 @@ import { getTodayDateString, getYesterdayDateString } from './utils.js';
 import { saveData } from './data.js';
 
 // --- Existing Functions (performDailyResetIfNeeded, handleUserAddHabit, _addHabitToList, deleteHabit, toggleHabitCompletion) ---
-// Keep them as they are, no changes needed for these core functionalities based on the request.
-// Make sure calculateStreakBonus is correctly imported/available if used here (it's in gamification.js)
+// These remain unchanged from your last provided version.
 
 export function performDailyResetIfNeeded() {
     const todayDateStr = getTodayDateString();
@@ -62,7 +61,7 @@ function _addHabitToList(name) {
     const newHabit = {
         id: Date.now().toString(), name: name, createdAt: new Date().toISOString(),
         baseXpValue: BASE_XP_PER_HABIT, completedToday: false, streak: 0, lastCompletedDate: null,
-        isEditing: false // Add editing state
+        isEditing: false
     };
     const updatedHabits = [...habits, newHabit];
     setHabits(updatedHabits);
@@ -128,7 +127,7 @@ export function toggleHabitCompletion(habitId) {
 }
 
 
-// --- New Functions for Editing and Reordering ---
+// --- Functions for Editing and Reordering ---
 
 export function startEditHabit(habitId) {
     const updatedHabits = habits.map(h =>
@@ -138,18 +137,24 @@ export function startEditHabit(habitId) {
     renderHabits();
 }
 
-export function saveHabitEdit(habitId, newName) {
-    const name = newName.trim();
+export function saveHabitEdit(habitId, newNameInput) {
+    const name = newNameInput.trim();
+    const habitIndex = habits.findIndex(h => h.id === habitId);
+    if (habitIndex === -1) return;
+
+    const oldHabit = habits[habitIndex];
+    const oldName = oldHabit.originalNameBeforeEdit || oldHabit.name; // Get the name before edit started
+
     if (name === "") {
         showToast("Habit name cannot be empty.", "error");
-        // Optionally, revert to original name or keep input open
-        const habit = habits.find(h => h.id === habitId);
-        if (habit) {
-             const editInput = document.querySelector(`.edit-input[data-habit-id="${habitId}"]`);
-             if(editInput) editInput.value = habit.originalNameBeforeEdit || habit.name; // Revert input field
-        }
+        const editInput = document.querySelector(`.edit-input[data-habit-id="${habitId}"]`);
+        if(editInput) editInput.value = oldName; // Revert input field to original name
         return;
     }
+
+    // Check if the name actually changed to avoid unnecessary AI calls
+    const nameHasChanged = oldName !== name;
+
     const updatedHabits = habits.map(h =>
         h.id === habitId ? { ...h, name: name, isEditing: false, originalNameBeforeEdit: undefined } : h
     );
@@ -157,6 +162,11 @@ export function saveHabitEdit(habitId, newName) {
     saveData();
     renderHabits();
     showToast("Habit updated!", "success");
+
+    if (geminiApiKey && nameHasChanged) { // Only trigger AI if the name actually changed
+        const promptContext = `The user, "${getUserTitle(userProfile.level)}", just edited a habit. It was originally named "${oldName}" and is now named "${name}".`;
+        generateAiResponse("habit_edit", promptContext);
+    }
 }
 
 export function cancelHabitEdit(habitId) {

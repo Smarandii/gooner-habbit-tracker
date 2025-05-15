@@ -63,7 +63,7 @@ export async function generateAiResponse(eventType, contextDetails) {
 
     const userTitleText = getUserTitle(userProfile.level);
     const personaPrompt = getAiAttitudeAndPersona(userProfile.level);
-    const fullPrompt = `You are an office secretary of ${userTitleText}. Your name is ${AI_COMPANION_NAME}. Your attitude towards ${userTitleText} is defined by: "${personaPrompt}". You need to comment on latest event that ${userTitleText} did. \n\nEvent: ${eventType}\nDetails: ${contextDetails}\n\n${AI_COMPANION_NAME}:`;
+    const fullPrompt = `You are a boss of ${userTitleText}. Your name is ${AI_COMPANION_NAME}. Your attitude towards your subordinate with title ${userTitleText} is defined by: "${personaPrompt}". You need to comment on latest event that ${userTitleText} did. \n\nEvent: ${eventType}\nDetails: ${contextDetails}\n\n${AI_COMPANION_NAME}:`;
 
     console.log("Gemini Prompt:", fullPrompt);
 
