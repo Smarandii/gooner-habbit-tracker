@@ -42,7 +42,7 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                     json={
                         "contents": [{ "parts": [{ "text": prompt }] }],
                         "generationConfig": {
-                            "temperature": 0.7,
+                            "temperature": 1.5,
                             "topK": 1,
                             "topP": 1,
                             "maxOutputTokens": 380,
