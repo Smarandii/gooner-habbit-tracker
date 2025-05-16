@@ -7,7 +7,7 @@ import requests
 INTERNAL_PORT = int(os.environ.get('APP_INTERNAL_PORT', 8000))
 WEB_DIR = os.path.dirname(os.path.abspath(__file__))
 
-GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-latest:generateContent"
 
 class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
