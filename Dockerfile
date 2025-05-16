@@ -4,6 +4,10 @@ FROM python:3.9-slim
 # Set the working directory in the container
 WORKDIR /app
 
+COPY ./requirements.txt .
+
+RUN pip install -r requirements.txt
+
 COPY ./index.html .
 COPY ./favicon.ico .
 COPY ./characters /app/characters/
