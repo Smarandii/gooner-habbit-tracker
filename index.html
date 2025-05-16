@@ -17,6 +17,22 @@
             <button id="changeApiKeyBtn" style="margin-top: 15px; background-color: #7f8c8d; border-radius: 5px; font-size: 0.9em; padding: 8px 15px;">Change API Key</button>
         </div>
 
+        <label for="modelSelector" style="font-size: 0.9em; margin-bottom: 8px; display: block;">Choose AI Model:</label>
+        <select id="modelSelector" style="padding: 8px; font-size: 0.95em; border-radius: 5px; width: 100%; max-width: 260px;">
+          <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+          <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash-Lite</option>
+          <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+          <option value="gemini-2.5-flash-preview-04-17">Gemini 2.5 Flash Preview 04-17</option>
+        </select>
+        <script>
+          // Save selected model to localStorage and update in POST payload
+          const modelSelector = document.getElementById('modelSelector');
+          modelSelector.value = localStorage.getItem('selectedModel') || 'gemini-2.0-flash';
+          modelSelector.addEventListener('change', () => {
+            localStorage.setItem('selectedModel', modelSelector.value);
+          });
+        </script>
+
         <div class="main-content">
             <div class="container">
                 <h1>Atomic Habit Hero</h1>

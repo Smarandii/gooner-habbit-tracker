@@ -7,7 +7,8 @@ import requests
 INTERNAL_PORT = int(os.environ.get('APP_INTERNAL_PORT', 8000))
 WEB_DIR = os.path.dirname(os.path.abspath(__file__))
 
-GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+def build_gemini_url(model):
+    return f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -26,6 +27,7 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
 
             api_key = data.get("apiKey")
             prompt = data.get("prompt")
+            model = data.get("model", "gemini-2.0-flash")
 
             if not api_key or not prompt:
                 self.send_response(400)
@@ -34,11 +36,11 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             try:
-                print("[ai-proxy] Sending prompt through SOCKS5 proxy...")
+                print("[ai-proxy] Sending prompt through model:", model)
                 print("Prompt:", prompt)
 
                 response = requests.post(
-                    f"{GEMINI_API_URL}?key={api_key}",
+                    f"{build_gemini_url(model)}?key={api_key}",
                     json={
                         "contents": [{ "parts": [{ "text": prompt }] }],
                         "generationConfig": {
@@ -73,7 +75,6 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 error_response = {"error": f"Server error: {str(e)}"}
                 self.wfile.write(json.dumps(error_response).encode())
-
 
 Handler = MyHttpRequestHandler
 
