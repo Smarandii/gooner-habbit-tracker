@@ -176,3 +176,22 @@ button.delete-btn:hover { background-color: #c0392b; }
     border-radius: 3px;
     margin-right: 10px; /* Space before save/cancel buttons */
 }
+
+.model-label {
+    margin-top: 12px;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.model-selector {
+    margin-top: 6px;
+    padding: 10px;
+    font-size: 0.95em;
+    width: 100%;
+    max-width: 240px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    color: #2c3e50;
+}
