@@ -44,10 +44,10 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                     json={
                         "contents": [{ "parts": [{ "text": prompt }] }],
                         "generationConfig": {
-                            "temperature": 1.5,
+                            "temperature": 1,
                             "topK": 1,
                             "topP": 1,
-                            "maxOutputTokens": 380,
+                            "maxOutputTokens": 300,
                         },
                         "safetySettings": [
                             { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE" },
