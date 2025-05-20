@@ -48,6 +48,8 @@ function handleDailyLogin(skipAiGreeting = false) {
 }
 
 
+
+
 async function initApp() {
     initUiElements(); // <<<< CALL THIS FIRST inside DOMContentLoaded
 
@@ -95,3 +97,25 @@ async function initApp() {
 // This ensures initApp runs after the basic DOM structure is parsed.
 // The initUiElements() call inside initApp then ensures elements are selected.
 document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', () => {
+		if (typeof $ !== 'undefined') {
+				const $aiPanel = $('.ai-panel');
+
+				if ($aiPanel.length) {
+					$(window).scroll(function() {
+						// Get the current vertical scroll position of the window
+						const scrollTop = $(this).scrollTop();
+
+						// Set the 'top' CSS property of the .ai-panel.
+						// This will make the .ai-panel's top edge (relative to .app-layout)
+						// move down by the amount the window has scrolled.
+						$aiPanel.css('top', scrollTop + 'px');
+					});
+				} else {
+					// Optional: Log a warning if the .ai-panel element isn't found
+					console.warn('.ai-panel element not found. Scroll follow functionality not applied.');
+				}
+			} else {
+				console.error('jQuery is not loaded. Scroll follow functionality for .ai-panel cannot be applied.');
+			}
+	});
