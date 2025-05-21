@@ -219,3 +219,28 @@ button.delete-btn:hover { background-color: #c0392b; }
     /* Add margin to prevent overlap with the absolutely positioned .ai-panel */
     margin-left: 500px;
 }
+
+/* -------- style.css – controls for AI speech pagination -------- */
+.ai-nav {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.ai-nav button {
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.7em;
+  cursor: pointer;
+}
+.ai-nav button:disabled {
+  background: #b0c4d6;
+  cursor: not-allowed;
+}
+.ai-count {
+  font-size: 0.7em;
+  line-height: 18px;
+}

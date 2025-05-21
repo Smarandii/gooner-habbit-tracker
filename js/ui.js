@@ -147,10 +147,6 @@ export function renderHabits() {
     });
 }
 
-// ... (keep updateGamificationDisplay, showToast, displayAiMessage, updateAiAvatarImage)
-// ... (keep promptForApiKeyModal, closeApiKeyModal, getNewHabitInput, clearNewHabitInput, getApiKeyInput, setAiCompanionName)
-// Ensure these functions are still exported if they were.
-
 export function updateGamificationDisplay() {
     if (!domElements.currentLevelEl) return; 
     domElements.currentLevelEl.textContent = userProfile.level;
@@ -178,14 +174,6 @@ export function showToast(message, type = "success", duration = 3000) {
     toastTimeout = setTimeout(() => {
         if(domElements.toastNotificationEl) domElements.toastNotificationEl.className = domElements.toastNotificationEl.className.replace("show", "");
     }, duration);
-}
-
-export function displayAiMessage(message, isError = false, isLoading = false) {
-    if (!domElements.aiSpeechBubbleEl) return; 
-    domElements.aiSpeechBubbleEl.classList.remove('thinking', 'error');
-    if (isLoading) domElements.aiSpeechBubbleEl.classList.add('thinking');
-    if (isError) domElements.aiSpeechBubbleEl.classList.add('error');
-    domElements.aiSpeechBubbleEl.innerHTML = message;
 }
 
 export function updateAiAvatarImage(level) {
@@ -244,4 +232,59 @@ export function getApiKeyInput() {
 export function setAiCompanionName(name) {
     if (!domElements.aiNameEl) return; 
     domElements.aiNameEl.textContent = name;
+}
+
+/* ---------------- ui.js – pagination helpers (add near the top, after imports) ---------------- */
+let aiPages = [];
+let aiPageIdx = 0;
+
+function splitSentences(text) {
+  return text.trim().split(/(?<=[.!?])\s+/);      // safe sentence splitter
+}
+
+function renderAiPage() {
+  const bubble = domElements.aiSpeechBubbleEl;
+  if (!bubble) return;
+
+  const nav =
+    aiPages.length > 1
+      ? `<div class="ai-nav">
+           <button id="aiPrev" ${aiPageIdx === 0 ? 'disabled' : ''}>Prev</button>
+           <span class="ai-count">${aiPageIdx + 1}/${aiPages.length}</span>
+           <button id="aiNext" ${aiPageIdx === aiPages.length - 1 ? 'disabled' : ''}>Next</button>
+         </div>`
+      : '';
+
+  bubble.innerHTML = `<span>${aiPages[aiPageIdx]}</span>${nav}`;
+
+  // wire navigation
+  const prev = document.getElementById('aiPrev');
+  const next = document.getElementById('aiNext');
+  if (prev) prev.onclick = () => { aiPageIdx--; renderAiPage(); };
+  if (next) next.onclick = () => { aiPageIdx++; renderAiPage(); };
+}
+
+/* ---------------- replace existing displayAiMessage with this version ---------------- */
+export function displayAiMessage(message, isError = false, isLoading = false) {
+  const bubble = domElements.aiSpeechBubbleEl;
+  if (!bubble) return;
+
+  bubble.classList.remove('thinking', 'error');
+
+  if (isLoading) {
+    bubble.classList.add('thinking');
+    bubble.textContent = message;
+    return;
+  }
+
+  if (isError) {
+    bubble.classList.add('error');
+    bubble.textContent = message;
+    return;
+  }
+
+  aiPages = splitSentences(message);
+  if (aiPages.length === 0) aiPages = [message];
+  aiPageIdx = 0;
+  renderAiPage();
 }
