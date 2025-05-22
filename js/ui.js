@@ -243,7 +243,7 @@ export function renderHabits(habitActionHandlers) {
         li.appendChild(_createHabitControls(habit, index, habits.length, handlers));
         domElements.habitsList.appendChild(li);
     });
-};
+}
 
 /**
  * Updates the gamification display elements in the UI, including level, XP bar,
