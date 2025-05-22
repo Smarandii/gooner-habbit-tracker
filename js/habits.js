@@ -52,7 +52,7 @@ export function handleUserAddHabit() {
     if (geminiApiKey) {
     	const promptContext = newHabitContext(
     		{
-    			userTitle: getUserTitle(tempProfile.level),
+    			userTitle: getUserTitle(userProfile.level),
     			habitName: habitName
     		}
     	)
