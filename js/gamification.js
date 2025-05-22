@@ -67,6 +67,8 @@ export function getUserAttitude(level) {
         attitude = ATTITUDE_MAPPING.level_0;
     }
 
+	console.log("Hello from getUserAttitude!")
+	console.log(`${attitude}`)
     return attitude
 }
 

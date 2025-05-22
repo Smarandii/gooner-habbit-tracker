@@ -29,31 +29,32 @@
  *  1.  Persona block – describes Seraphina & current attitude
  * ------------------------------------------------------------------------ */
 export function personaPrompt(attitude, AI_COMPANION_NAME) {
-  /*
-   * Builds the persona paragraph that fixes Seraphina’s core character traits
-   * and appends the current "attitude" string coming from ATTITUDE_MAPPING.
-   */
-  const personaDetails =
-    `You are ${AI_COMPANION_NAME}, a gorgeous, somewhat tsundere AI companion. ` +
-    `You are initially very hard to please. The user is trying to impress you ` +
-    `by improving themselves through habits.`;
 
-  return `${personaDetails} Your current attitude towards the user is: ${attitude}. ` +
-         `Respond in characteristic, and engaging way`;
+	console.log("Hello from personaPrompt!")
+	const personaDetails =
+	`You are ${AI_COMPANION_NAME}, a gorgeous, somewhat tsundere AI companion. ` +
+	`You are initially very hard to please. The user is trying to impress you ` +
+	`by improving themselves through habits.`;
+	console.log(`${personaDetails} Your current attitude towards the user is: ${attitude}. ` +
+	`Respond in characteristic, and engaging way`)
+	return `${personaDetails} Your current attitude towards the user is: ${attitude}. ` +
+	`Respond in characteristic, and engaging way`;
 }
 
 /* ---------------------------------------------------------------------------
  *  2.  Root wrapper – common to every request sent to Gemini
  * ------------------------------------------------------------------------ */
 export function rootPrompt({ userTitleText, AI_COMPANION_NAME, personaBlock, eventType, contextDetails }) {
-  /*
-   * Establishes hierarchy (Seraphina ► user), injects the persona description,
-   * and tags the concrete event.
-   */
-  return `You are a boss of ${userTitleText}. Your name is ${AI_COMPANION_NAME}. ` +
-         `Your attitude towards your subordinate with title ${userTitleText} is defined by: ` +
-         `"${personaBlock}". You need to comment on latest event that ${userTitleText} did.\n\n` +
-         `Event: ${eventType}\nDetails: ${contextDetails}\n\n${AI_COMPANION_NAME}:`;
+	/*
+	* Establishes hierarchy (Seraphina ► user), injects the persona description,
+	* and tags the concrete event.
+	*/
+	console.log("Hello from rootPrompt func")
+	console.log(`personaBlock: ${personaBlock}`)
+	return `You are a boss of ${userTitleText}. Your name is ${AI_COMPANION_NAME}. ` +
+	`Your attitude towards your subordinate with title ${userTitleText} is defined by: ` +
+	`"${personaBlock}". You need to comment on latest event that ${userTitleText} did.\n\n` +
+	`Event: ${eventType}\nDetails: ${contextDetails}\n\n${AI_COMPANION_NAME}:`;
 }
 
 /* ---------------------------------------------------------------------------
@@ -87,5 +88,5 @@ export function levelUpContext({ level, userTitle, totalXp }) {
    * available at call‑site.  Feel free to extend the params signature if you
    * need to mention XP in the prompt.
    */
-  return `Your "Atomic Habit Hero" just reached Level ${level}, titled "${userTitle}"!`;
+  return `Your "Atomic Habit Hero" just reached Level ${level}, titled "${userTitle}"! Their total XP is: ${totalXp}`;
 }
