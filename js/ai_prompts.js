@@ -82,7 +82,7 @@ export function habitDeleteContext({ userTitle, habitName }) {
   return `The user, "${userTitle}", just deleted the habit named: "${habitName}".`;
 }
 
-export function levelUpContext({ level, userTitle }) {
+export function levelUpContext({ level, userTitle, totalXp }) {
   /* NOTE: original implementation referenced currentProfile.xp which wasn’t
    * available at call‑site.  Feel free to extend the params signature if you
    * need to mention XP in the prompt.

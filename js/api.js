@@ -1,8 +1,9 @@
 import { geminiApiKey, isAiThinking, setIsAiThinking, userProfile, setGeminiApiKey } from './state.js';
 import { AI_COMPANION_NAME, ATTITUDE_MAPPING } from './config.js';
 import { displayAiMessage, promptForApiKeyModal, showToast } from './ui.js';
-import { getUserTitle } from './gamification.js';
+import { getUserTitle, getUserAttitude } from './gamification.js';
 import { saveData } from './data.js';
+import { personaPrompt, rootPrompt } from './ai_prompts.js';
 
 export async function checkAndPromptForApiKey() {
     return new Promise((resolve, reject) => {
@@ -33,24 +34,8 @@ export function handleSaveApiKey(inputKey) {
 }
 
 function getAiAttitudeAndPersona(level) {
-    let attitude = ATTITUDE_MAPPING.level_0; // Default
-    let personaDetails = `You are ${AI_COMPANION_NAME}, a gorgeous, somewhat tsundere AI companion. You are initially very hard to please. The user is trying to impress you by improving themselves through habits.`;
-
-    const sortedLevels = Object.keys(ATTITUDE_MAPPING)
-                             .map(key => parseInt(key.split('_')[1]))
-                             .sort((a, b) => b - a);
-
-    for (const lvlKey of sortedLevels) {
-        if (level >= lvlKey) {
-            attitude = ATTITUDE_MAPPING['level_' + lvlKey];
-            break;
-        }
-    }
-     if (level < sortedLevels[sortedLevels.length -1] && ATTITUDE_MAPPING.level_0) {
-        attitude = ATTITUDE_MAPPING.level_0;
-    }
-
-    return `${personaDetails} Your current attitude towards the user is: ${attitude}. Respond in characteristic, and engaging way`;
+    const attitude = getUserAttitude(level)
+    return personaPrompt(attitude, AI_COMPANION_NAME);
 }
 
 export async function generateAiResponse(eventType, contextDetails) {
@@ -63,7 +48,7 @@ export async function generateAiResponse(eventType, contextDetails) {
 
     const userTitleText = getUserTitle(userProfile.level);
     const personaPrompt = getAiAttitudeAndPersona(userProfile.level);
-    const fullPrompt = `You are a boss of ${userTitleText}. Your name is ${AI_COMPANION_NAME}. Your attitude towards your subordinate with title ${userTitleText} is defined by: "${personaPrompt}". You need to comment on latest event that ${userTitleText} did. \n\nEvent: ${eventType}\nDetails: ${contextDetails}\n\n${AI_COMPANION_NAME}:`;
+    const fullPrompt = rootPrompt({ userTitleText, AI_COMPANION_NAME, personaPrompt, eventType, contextDetails });
 
     console.log("Gemini Prompt:", fullPrompt);
 

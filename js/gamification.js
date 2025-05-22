@@ -1,8 +1,9 @@
 import { userProfile, setUserProfile, geminiApiKey } from './state.js';
-import { XP_FOR_LEVEL_1, XP_GROWTH_FACTOR, LEVEL_TITLES } from './config.js';
+import { XP_FOR_LEVEL_1, XP_GROWTH_FACTOR, LEVEL_TITLES, ATTITUDE_MAPPING } from './config.js';
 import { showToast, updateAiAvatarImage } from './ui.js';
-import { generateAiResponse } from './api.js'; // Forward declaration
-import { saveData } from './data.js'; // Forward declaration
+import { generateAiResponse } from './api.js';
+import { saveData } from './data.js';
+import { levelUpContext } from './ai_prompts.js';
 
 export function calculateXpForNextLevel(currentLevel) {
     if (currentLevel === 0) return XP_FOR_LEVEL_1;
@@ -19,7 +20,6 @@ export function addXP(amount) {
 
     setUserProfile(newProfile); // Update state
     checkLevelUp();
-    // saveData is usually called by the function that triggers addXP (e.g., toggleHabitCompletion)
 }
 
 export function checkLevelUp() {
@@ -36,7 +36,8 @@ export function checkLevelUp() {
         updateAiAvatarImage(currentProfile.level);
 
         if (geminiApiKey) {
-             generateAiResponse("level_up", `Your "Atomic Habit Hero" just reached Level ${currentProfile.level}, titled "${getUserTitle(currentProfile.level)}"! Their total XP is currentProfile.xp.`);
+			const promptContext = levelUpContext({ level: currentProfile.level, userTitle: getUserTitle(currentProfile.level), totalXp: currentProfile.xp });
+			generateAiResponse("level_up", promptContext);
         }
     }
     if (leveledUp) {
@@ -47,6 +48,26 @@ export function checkLevelUp() {
 
 export function getUserTitle(level) {
     return LEVEL_TITLES.slice().reverse().find(lt => level >= lt.minLevel)?.title || LEVEL_TITLES[0].title;
+}
+
+export function getUserAttitude(level) {
+	let attitude = ATTITUDE_MAPPING.level_0;
+
+    const sortedLevels = Object.keys(ATTITUDE_MAPPING)
+                             .map(key => parseInt(key.split('_')[1]))
+                             .sort((a, b) => b - a);
+
+    for (const lvlKey of sortedLevels) {
+        if (level >= lvlKey) {
+            attitude = ATTITUDE_MAPPING['level_' + lvlKey];
+            break;
+        }
+    }
+     if (level < sortedLevels[sortedLevels.length -1] && ATTITUDE_MAPPING.level_0) {
+        attitude = ATTITUDE_MAPPING.level_0;
+    }
+
+    return attitude
 }
 
 export function calculateStreakBonus(streak) {

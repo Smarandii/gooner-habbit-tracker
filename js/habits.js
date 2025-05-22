@@ -5,6 +5,7 @@ import { addXP, calculateStreakBonus, getUserTitle } from './gamification.js';
 import { generateAiResponse } from './api.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
 import { saveData } from './data.js';
+import { newHabitContext, habitCompleteContext, habitEditContext, habitDeleteContext } from './ai_prompts.js';
 
 
 export function performDailyResetIfNeeded() {
@@ -49,7 +50,13 @@ export function handleUserAddHabit() {
     clearNewHabitInput();
 
     if (geminiApiKey) {
-        const promptContext = `The user, known as "${getUserTitle(userProfile.level)}", just added a new habit: "${habitName}".`;
+    	const promptContext = newHabitContext(
+    		{
+    			userTitle: getUserTitle(tempProfile.level),
+    			habitName: habitName
+    		}
+    	)
+
         generateAiResponse("new_habit", promptContext);
     }
 }
@@ -67,9 +74,6 @@ function _addHabitToList(name) {
     renderHabits();
     showToast(`Habit "${name}" added!`);
 }
-
-// --- toggleHabitCompletion, startEditHabit, saveHabitEdit, cancelHabitEdit, moveHabitUp, moveHabitDown ---
-// (These functions remain unchanged from your last provided version)
 
 export function toggleHabitCompletion(habitId) {
     const habitIndex = habits.findIndex(h => h.id === habitId);
@@ -89,7 +93,14 @@ export function toggleHabitCompletion(habitId) {
         addXP(awardedXP);
         showToast(`"${habit.name}" (Streak: ${habit.streak})! +${awardedXP} XP! 💪`);
         if (geminiApiKey) {
-            const promptContext = `${getUserTitle(userProfile.level)} just completed the habit: "${habit.name}". Their streak for this habit is ${habit.streak} days. They gained ${awardedXP} XP.`;
+            const promptContext = habitCompleteContext(
+            	{
+            		userTitle: getUserTitle(userProfile.level),
+            		habitName: habit.name,
+            		streak: habit.streak,
+            		awardedXP: awardedXP
+            	}
+            )
             generateAiResponse("habit_complete", promptContext);
         }
     } else {
@@ -142,7 +153,13 @@ export function saveHabitEdit(habitId, newNameInput) {
     showToast("Habit updated!", "success");
 
     if (geminiApiKey && nameHasChanged) {
-        const promptContext = `The user, "${getUserTitle(userProfile.level)}", just edited a habit. It was originally named "${oldName}" and is now named "${name}".`;
+    	const promptContext = habitEditContext(
+    		{
+    			userTitle: getUserTitle(userProfile.level),
+    			oldName: oldName,
+    			newName: name
+    		}
+    	)
         generateAiResponse("habit_edit", promptContext);
     }
 }
@@ -202,7 +219,12 @@ export function deleteHabit(habitId) {
 
         // Notify AI about the deletion
         if (geminiApiKey) {
-            const promptContext = `The user, "${getUserTitle(userProfile.level)}", just deleted the habit named: "${habitName}".`;
+            const promptContext = habitDeleteContext(
+            	{
+            		userTitle: getUserTitle(userProfile.level),
+            		habitName: habitName
+				}
+			);
             generateAiResponse("habit_delete", promptContext);
         }
     }

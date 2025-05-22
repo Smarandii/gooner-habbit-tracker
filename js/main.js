@@ -10,6 +10,7 @@ import { XP_FOR_DAILY_LOGIN, AI_COMPANION_NAME } from './config.js'; // Import c
 import { checkAndPromptForApiKey, handleSaveApiKey as processSaveApiKey, generateAiResponse } from './api.js';
 import { userProfile, geminiApiKey, setUserProfile } from './state.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
+import { loginContext } from './ai_prompts.js';
 
 
 function handleDailyLogin(skipAiGreeting = false) {
@@ -31,8 +32,14 @@ function handleDailyLogin(skipAiGreeting = false) {
         addXP(XP_FOR_DAILY_LOGIN);
         showToast(`Welcome back! +${XP_FOR_DAILY_LOGIN} XP for daily visit! Login Streak: ${tempProfile.loginStreak}`, "success");
 
-        if (!skipAiGreeting && geminiApiKey) { // Check module-scoped key from state
-            const promptContext = `The user, your "${getUserTitle(tempProfile.level)}", just logged in. Their current login streak is ${tempProfile.loginStreak} days. Today is ${new Date().toLocaleDateString()}.`;
+        if (!skipAiGreeting && geminiApiKey) {
+            const promptContext = loginContext(
+				{
+					userTitle: getUserTitle(tempProfile.level),
+					loginStreak: tempProfile.loginStreak,
+					today: new Date().toLocaleDateString()
+				}
+            );
             generateAiResponse("daily_login", promptContext);
         }
     }
