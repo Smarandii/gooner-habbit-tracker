@@ -1,10 +1,10 @@
 import { userProfile, setUserProfile, geminiApiKey } from './state.js';
 import { XP_FOR_LEVEL_1, XP_GROWTH_FACTOR, LEVEL_TITLES, ATTITUDE_MAPPING } from './config.js';
-// UI imports removed
+
 import { generateAiResponse } from './api.js';
 import { saveData } from './data.js';
 import { levelUpContext } from './ai_prompts.js';
-import { getValueForLevel } from './utils.js'; // Import the new utility function
+import { getValueForLevel } from './utils.js';
 
 let uiCallbacks = {
     showToast: (message, type, duration) => console.warn('showToast callback not set in gamification.js', { message, type, duration }),
@@ -42,9 +42,9 @@ export const addXP = (amount) => {
     newProfile.currentLevelXP = Math.max(0, newProfile.currentLevelXP);
     newProfile.xp = Math.max(0, newProfile.xp);
 
-    setUserProfile(newProfile); // Update state with the new values
-    checkLevelUp(); // Check for level up based on the updated state
-    uiCallbacks.requestUpdateGamificationDisplay(); // Notify UI to update
+    setUserProfile(newProfile);
+    checkLevelUp();
+    uiCallbacks.requestUpdateGamificationDisplay();
 };
 
 /**
@@ -65,7 +65,7 @@ export const checkLevelUp = () => {
         currentProfileState.xpForNextLevel = calculateXpForNextLevel(currentProfileState.level);
         leveledUp = true;
 
-        const { level, xp } = currentProfileState; // Destructure for context
+        const { level, xp } = currentProfileState;
         const userTitle = getUserTitle(level);
 
         uiCallbacks.showToast(`LEVEL UP! You are now Level ${level}: ${userTitle}! 🎉`, "success", 5000);
@@ -78,8 +78,8 @@ export const checkLevelUp = () => {
     }
 
     if (leveledUp) {
-        setUserProfile(currentProfileState); // Update the main state if level up occurred
-        saveData(); // Save after level up changes
+        setUserProfile(currentProfileState);
+        saveData();
     }
 };
 

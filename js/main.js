@@ -1,27 +1,27 @@
 import { loadData, saveData } from './data.js';
 import {
     renderHabits, updateGamificationDisplay, showToast, updateAiAvatarImage,
-    promptForApiKeyModal, closeApiKeyModal, getApiKeyInput, clearNewHabitInput, // Added clearNewHabitInput
+    promptForApiKeyModal, closeApiKeyModal, getApiKeyInput, clearNewHabitInput,
     setAiCompanionName, domElements, initUiElements
 } from './ui.js';
 import {
-    initHabits, // New import
+    initHabits,
     performDailyResetIfNeeded,
     handleUserAddHabit as processUserAddedHabit, // Renamed for clarity in this file
-    toggleHabitCompletion, // New import for habitActionHandlers
-    deleteHabit,           // New import
-    startEditHabit,        // New import
-    saveHabitEdit,         // New import
-    cancelHabitEdit,       // New import
-    moveHabitUp,           // New import
-    moveHabitDown          // New import
+    toggleHabitCompletion,
+    deleteHabit,
+    startEditHabit,
+    saveHabitEdit,
+    cancelHabitEdit,
+    moveHabitUp,
+    moveHabitDown
 } from './habits.js';
 import {
-    initGamification, // New import
+    initGamification,
     addXP,
     getUserTitle
 } from './gamification.js';
-import { XP_FOR_DAILY_LOGIN, AI_COMPANION_NAME } from './config.js'; // Import constants
+import { XP_FOR_DAILY_LOGIN, AI_COMPANION_NAME } from './config.js';
 import { checkAndPromptForApiKey, handleSaveApiKey as processSaveApiKey, generateAiResponse } from './api.js';
 import { userProfile, geminiApiKey, setUserProfile } from './state.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
@@ -65,8 +65,8 @@ function handleDailyLogin(skipAiGreeting = false) {
     }
 
     if (profileChanged) {
-        setUserProfile(tempProfile); // Ensure state is updated with login changes
-        saveData(); // Save these login-specific changes
+        setUserProfile(tempProfile);
+        saveData();
     }
 
     // Always update UI from the potentially modified state after all logic
@@ -94,7 +94,7 @@ async function initApp() {
         getNewHabitInput: getNewHabitInput,
         clearNewHabitInput: clearNewHabitInput
     };
-    initHabits(uiCallbacksForHabits); // Initialize habits module with UI callbacks
+    initHabits(uiCallbacksForHabits);
 
     // Prepare action handlers for ui.js (renderHabits)
     const habitActionHandlersForUi = {
@@ -113,11 +113,11 @@ async function initApp() {
         updateAiAvatarImage: updateAiAvatarImage,
         requestUpdateGamificationDisplay: updateGamificationDisplay
     };
-    initGamification(uiCallbacksForGamification); // Initialize gamification module
+    initGamification(uiCallbacksForGamification);
 
     setAiCompanionName(AI_COMPANION_NAME);
     loadData(); // This calls setGeminiApiKey, which might be needed before API calls
-    updateAiAvatarImage(userProfile.level); // Initial avatar based on loaded level
+    updateAiAvatarImage(userProfile.level);
 
     try {
         await checkAndPromptForApiKey(); // Needs API key to be potentially set by loadData
@@ -128,7 +128,7 @@ async function initApp() {
     performDailyResetIfNeeded(); // This might call uiCallbacks.showToast and uiCallbacks.requestRenderHabits (via initHabits)
     handleDailyLogin(); // This calls addXP, which now triggers requestUpdateGamificationDisplay (via initGamification)
 
-    renderHabits(habitActionHandlersForUi); // Initial render
+    renderHabits(habitActionHandlersForUi);
     updateGamificationDisplay(); // Initial gamification display after loadData and potential daily login XP
     // updateAiAvatarImage is called by loadData, and potentially by handleDailyLogin->addXP->checkLevelUp
 
@@ -154,31 +154,16 @@ async function initApp() {
             promptForApiKeyModal(true, geminiApiKey);
         });
     }
+    // AI Panel Scrolling Logic
+    const aiPanelElement = document.querySelector('.ai-panel');
+    if (aiPanelElement) {
+        window.addEventListener('scroll', () => {
+            // Adjusts the .ai-panel's top CSS property to make its top edge
+            // (relative to .app-layout) follow the window's vertical scroll position.
+            aiPanelElement.style.top = `${window.scrollY}px`;
+        });
+    }
 }
 
-// This ensures initApp runs after the basic DOM structure is parsed.
-// The initUiElements() call inside initApp then ensures elements are selected.
+// Consolidated DOMContentLoaded listener
 document.addEventListener('DOMContentLoaded', initApp);
-document.addEventListener('DOMContentLoaded', () => {
-		if (typeof $ !== 'undefined') {
-				const $aiPanel = $('.ai-panel');
-
-				if ($aiPanel.length) {
-					$(window).scroll(() => {
-						// Get the current vertical scroll position of the window
-						const scrollTop = $(window).scrollTop(); // Changed $(this) to $(window)
-
-						// Set the 'top' CSS property of the .ai-panel.
-						// This will make the .ai-panel's top edge (relative to .app-layout)
-						// move down by the amount the window has scrolled.
-						$aiPanel.css('top', scrollTop + 'px');
-					});
-				} else {
-					// Optional: Log if the .ai-panel element isn't found, though this is a dev concern.
-					// No user-facing warning needed here as it's a non-critical enhancement.
-				}
-			} else {
-				// jQuery not loaded, scroll functionality cannot be applied.
-				// This is a development/setup issue, not a runtime user error.
-			}
-	});

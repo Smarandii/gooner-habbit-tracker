@@ -1,6 +1,6 @@
 import { habits, userProfile, geminiApiKey, setHabits, setUserProfile } from './state.js';
 import { BASE_XP_PER_HABIT } from './config.js';
-// UI imports removed
+
 import { addXP, calculateStreakBonus, getUserTitle } from './gamification.js';
 import { generateAiResponse } from './api.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
@@ -38,14 +38,14 @@ export function initHabits(callbacks) {
  */
 export const performDailyResetIfNeeded = () => {
     const todayDateStr = getTodayDateString();
-    const { lastDailyReset, level } = userProfile; // Destructuring
+    const { lastDailyReset, level } = userProfile;
 
     if (lastDailyReset !== todayDateStr) {
         const yesterdayDateStr = getYesterdayDateString();
         let streaksBroken = 0; let streaksMaintained = 0;
 
         const updatedHabits = habits.map(habit => {
-            const { streak, lastCompletedDate, createdAt } = habit; // Destructuring
+            const { streak, lastCompletedDate, createdAt } = habit;
             let newStreak = streak;
             if (lastCompletedDate !== yesterdayDateStr) {
                 const habitCreationDate = new Date(createdAt).toISOString().split('T')[0];
@@ -87,7 +87,7 @@ export const handleUserAddHabit = () => {
     uiCallbacks.clearNewHabitInput();
 
     if (geminiApiKey) {
-        const { level: userLevel } = userProfile; // Destructuring
+        const { level: userLevel } = userProfile;
     	const promptContext = newHabitContext(
     		{
     			userTitle: getUserTitle(userLevel),
@@ -117,7 +117,7 @@ function _addHabitToList(name) {
 
     saveData();
     uiCallbacks.requestRenderHabits();
-    uiCallbacks.showToast(`Habit "${name}" added!`); // Template literal already used effectively
+    uiCallbacks.showToast(`Habit "${name}" added!`);
 };
 
 export const toggleHabitCompletion = (habitId) => {
@@ -125,9 +125,8 @@ export const toggleHabitCompletion = (habitId) => {
     if (habitIndex === -1) return;
 
     let currentHabit = { ...habits[habitIndex] };
-    // Destructure properties from currentHabit for easier use
     let { name: habitName, completedToday, lastCompletedDate, streak, baseXpValue } = currentHabit;
-    const { level: userLevel } = userProfile; // Destructure user level
+    const { level: userLevel } = userProfile;
 
     const todayStr = getTodayDateString();
     const yesterdayStr = getYesterdayDateString();
@@ -188,9 +187,9 @@ export const saveHabitEdit = (habitId, newNameInput) => {
     const habitIndex = habits.findIndex(h => h.id === habitId);
     if (habitIndex === -1) return;
 
-    const { name: currentName, originalNameBeforeEdit } = habits[habitIndex]; // Destructure
+    const { name: currentName, originalNameBeforeEdit } = habits[habitIndex];
     const oldName = originalNameBeforeEdit || currentName;
-    const { level: userLevel } = userProfile; // Destructure
+    const { level: userLevel } = userProfile;
 
     if (newNameTrimmed === "") {
         uiCallbacks.showToast("Habit name cannot be empty.", "error");
@@ -238,7 +237,6 @@ export const moveHabitUp = (habitId) => {
     const index = habits.findIndex(h => h.id === habitId);
     if (index > 0) {
         const updatedHabits = [...habits];
-        // Simple swap using destructuring for conciseness
         [updatedHabits[index - 1], updatedHabits[index]] = [updatedHabits[index], updatedHabits[index - 1]];
         setHabits(updatedHabits);
         saveData();
@@ -257,7 +255,6 @@ export const moveHabitDown = (habitId) => {
     const index = habits.findIndex(h => h.id === habitId);
     if (index < habits.length - 1 && index !== -1) {
         const updatedHabits = [...habits];
-        // Simple swap using destructuring for conciseness
         [updatedHabits[index + 1], updatedHabits[index]] = [updatedHabits[index], updatedHabits[index + 1]];
         setHabits(updatedHabits);
         saveData();
@@ -275,8 +272,8 @@ export const moveHabitDown = (habitId) => {
 export const deleteHabit = (habitId) => {
     const habitIndex = habits.findIndex(h => h.id === habitId);
     if (habitIndex > -1) {
-        const { name: habitName, completedToday, baseXpValue, streak } = habits[habitIndex]; // Destructuring
-        const { level: userLevel } = userProfile; // Destructuring
+        const { name: habitName, completedToday, baseXpValue, streak } = habits[habitIndex];
+        const { level: userLevel } = userProfile;
 
         if (completedToday) {
             addXP(-(baseXpValue + calculateStreakBonus(streak)));

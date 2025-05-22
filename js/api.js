@@ -77,7 +77,6 @@ export const generateAiResponse = async (eventType, contextDetails) => {
     const personaBlock = getAiAttitudeAndPersona(userProfile.level);
     const fullPrompt = rootPrompt({ userTitleText, AI_COMPANION_NAME, personaBlock, eventType, contextDetails });
 
-    // console.log("Gemini Prompt:", fullPrompt); // Debug log, remove for production
 
     try {
         const response = await fetch("/ai-proxy", {
@@ -105,7 +104,7 @@ export const generateAiResponse = async (eventType, contextDetails) => {
         }
 
         const data = await response.json();
-        const { candidates, promptFeedback } = data; // Destructuring
+        const { candidates, promptFeedback } = data;
 
         if (candidates?.[0]?.content?.parts?.[0]) {
             let AImessage = candidates[0].content.parts[0].text.trim();
@@ -117,7 +116,6 @@ export const generateAiResponse = async (eventType, contextDetails) => {
             displayAiMessage("I'm a bit speechless right now...", true);
         }
     } catch (error) {
-        // console.error("Error calling Gemini API:", error); // Debug log, ensure user-facing errors are handled
         if (!error.message.includes("API Error")) { // Avoid double-messaging for API errors already handled
              displayAiMessage("Oops! I couldn't connect to my thoughts. Check the console log for details.", true);
         }

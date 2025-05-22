@@ -1,9 +1,9 @@
 // js/ui.js
 import { habits, userProfile } from './state.js';
 import { AVATAR_IMAGES, DEFAULT_AVATAR_PATH } from './config.js';
-// habit imports removed
+
 import { getUserTitle } from './gamification.js';
-import { getValueForLevel } from './utils.js'; // Import the new utility function
+import { getValueForLevel } from './utils.js';
 
 export const domElements = {}; // Populated by initUiElements
 
@@ -210,7 +210,7 @@ function _createHabitControls(habit, index, totalHabits, handlers) {
 export function renderHabits(habitActionHandlers) {
     const handlers = { ...defaultHabitActionHandlers, ...habitActionHandlers };
     if (!domElements.habitsList) return;
-    domElements.habitsList.innerHTML = ""; // Clear existing habits
+    domElements.habitsList.innerHTML = "";
 
     if (habits.length === 0) {
         domElements.habitsList.innerHTML = `<p style='text-align:center; color:#777;'>No habits yet. Add one!</p>`;
@@ -252,7 +252,7 @@ export function renderHabits(habitActionHandlers) {
  */
 export const updateGamificationDisplay = () => {
     if (!domElements.currentLevelEl) return;
-    const { level, currentLevelXP, xpForNextLevel, loginStreak } = userProfile; // Destructuring
+    const { level, currentLevelXP, xpForNextLevel, loginStreak } = userProfile;
 
     domElements.currentLevelEl.textContent = level;
     domElements.levelTitleEl.textContent = getUserTitle(level);
@@ -271,7 +271,7 @@ export const updateGamificationDisplay = () => {
 let toastTimeout;
 export const showToast = (message, type = "success", duration = 3000) => {
     if (!domElements.toastNotificationEl) return;
-    const { toastNotificationEl } = domElements; // Destructuring
+    const { toastNotificationEl } = domElements;
 
     toastNotificationEl.textContent = message;
     toastNotificationEl.className = 'toast show';
@@ -299,7 +299,6 @@ export const updateAiAvatarImage = (level) => {
     } else {
         // This case should ideally not be hit if defaultAvatarConfig is well-defined
         selectedAvatarFile = DEFAULT_AVATAR_PATH;
-        // console.warn removed as per previous objectives, error handled by fallback.
     }
     
     aiAvatarEl.src = selectedAvatarFile;
@@ -311,8 +310,8 @@ export const updateAiAvatarImage = (level) => {
 
 export const promptForApiKeyModal = (force = false, currentKey = '') => {
     if (!domElements.apiKeyModalEl) return;
-    const { apiKeyModalEl, apiKeyInputEl } = domElements; // Destructuring
-    const { geminiApiKey: currentProfileApiKey } = userProfile; // Destructuring with alias
+    const { apiKeyModalEl, apiKeyInputEl } = domElements;
+    const { geminiApiKey: currentProfileApiKey } = userProfile;
 
      if (!currentProfileApiKey || force) {
         apiKeyModalEl.style.display = 'flex';
@@ -369,7 +368,7 @@ let aiPageIdx = 0;
  * @returns {Array<string>} An array of sentences.
  * @private
  */
-const splitSentences = (text) => { // Arrow function
+const splitSentences = (text) => {
   return text.trim().split(/(?<=[.!?])\s+/);      // safe sentence splitter
 };
 
@@ -379,8 +378,8 @@ const splitSentences = (text) => { // Arrow function
  * @private
  * @returns {void}
  */
-const renderAiPage = () => { // Arrow function
-  const { aiSpeechBubbleEl } = domElements; // Destructuring
+const renderAiPage = () => {
+  const { aiSpeechBubbleEl } = domElements;
   if (!aiSpeechBubbleEl) return;
 
   const nav =

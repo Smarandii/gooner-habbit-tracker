@@ -47,7 +47,7 @@ export const setUserProfile = (newProfile) => {
  */
 export const setGeminiApiKey = (key) => {
     geminiApiKey = key;
-    userProfile.geminiApiKey = key; // Directly update the userProfile object property
+    userProfile.geminiApiKey = key;
 };
 
 /**

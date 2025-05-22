@@ -8,7 +8,7 @@ import { setAiCompanionName } from './ui.js';
  * @returns {void}
  */
 export const saveData = () => {
-    const { geminiApiKey: userApiKey } = userProfile; // Destructuring
+    const { geminiApiKey: userApiKey } = userProfile;
     // userProfile already contains geminiApiKey via setGeminiApiKey
 
     localStorage.setItem(HABITS_LS_KEY, JSON.stringify(habits));
