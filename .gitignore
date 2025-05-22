@@ -1,2 +1,9 @@
 .idea
 docker-compose.override.yaml
+node_modules/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

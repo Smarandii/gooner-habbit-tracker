@@ -8,6 +8,10 @@ INTERNAL_PORT = int(os.environ.get('APP_INTERNAL_PORT', 8000))
 WEB_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def build_gemini_url(model):
+    base_url = os.environ.get('TEST_GEMINI_API_ENDPOINT')
+    if base_url:
+        # Ensure the model is appended correctly, simulating the original structure for the proxy
+        return f"{base_url}/{model}:generateContent" 
     return f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -23,7 +27,17 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
         if self.path == '/ai-proxy':
             content_length = int(self.headers['Content-Length'])
             body = self.rfile.read(content_length)
+            
+            # --- Debugging prints START ---
+            print(f"[ai-proxy] Received headers: {self.headers}")
+            print(f"[ai-proxy] Received body: {body.decode('utf-8')}")
+            # --- Debugging prints END ---
+            
             data = json.loads(body)
+
+            # --- Debugging prints START ---
+            print(f"[ai-proxy] Parsed data: {data}")
+            # --- Debugging prints END ---
 
             api_key = data.get("apiKey")
             prompt = data.get("prompt")
@@ -78,6 +92,8 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 Handler = MyHttpRequestHandler
 
+# Allow address reuse
+socketserver.TCPServer.allow_reuse_address = True
 with socketserver.TCPServer(("", INTERNAL_PORT), Handler) as httpd:
     print(f"Serving HTTP on internal port {INTERNAL_PORT} from directory {WEB_DIR}")
     try:
