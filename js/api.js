@@ -47,8 +47,8 @@ export async function generateAiResponse(eventType, contextDetails) {
     displayAiMessage("Thinking...", false, true);
 
     const userTitleText = getUserTitle(userProfile.level);
-    const personaPrompt = getAiAttitudeAndPersona(userProfile.level);
-    const fullPrompt = rootPrompt({ userTitleText, AI_COMPANION_NAME, personaPrompt, eventType, contextDetails });
+    const personaBlock = getAiAttitudeAndPersona(userProfile.level);
+    const fullPrompt = rootPrompt({ userTitleText, AI_COMPANION_NAME, personaBlock, eventType, contextDetails });
 
     console.log("Gemini Prompt:", fullPrompt);
 
