@@ -1,0 +1,69 @@
+name: CI Tests
+
+on: [push, pull_request]
+
+jobs:
+  frontend-tests:
+    name: Frontend (Jest) Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x' # Or a version compatible with your project/Playwright
+
+      - name: Install frontend dependencies
+        run: npm ci # 'ci' is generally recommended for CI for cleaner installs
+
+      - name: Run Jest tests
+        run: npm test # This runs 'jest' as per package.json
+
+  backend-tests:
+    name: Backend (Pytest) Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9' # Match Dockerfile or project requirement
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Pytest tests
+        run: pytest tests/backend/test_server.py
+
+  e2e-tests:
+    name: E2E (Playwright) Tests
+    runs-on: ubuntu-latest
+    needs: [frontend-tests, backend-tests] # Optional: run E2E after unit/integration tests pass
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+
+      - name: Install frontend dependencies (including Playwright)
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium # Install only chromium and its OS dependencies
+
+      - name: Run Playwright tests
+        # This will use the webServer config in playwright.config.js to start the app
+        run: npm run test:e2e 
+        # If server needs to be started manually for some reason:
+        # run: |
+        #   python server.py &  # Start server in background
+        #   npm run test:e2e
