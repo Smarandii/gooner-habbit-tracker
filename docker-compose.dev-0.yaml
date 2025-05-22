@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  habbit_hero:
+    build: .
+    container_name: habbit-hero-app-compose
+    ports:
+      - "1487:8000"
+    environment:
+      - APP_INTERNAL_PORT=8000
+    restart: unless-stopped
