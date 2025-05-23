@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   frontend-tests:
-    name: Frontend (Jest) Tests
+    name: Frontend (Vitest) Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -18,8 +18,8 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci # 'ci' is generally recommended for CI for cleaner installs
 
-      - name: Run Jest tests
-        run: npm test # This runs 'jest' as per package.json
+      - name: Run Vitest tests
+        run: npm run test:unit
 
   backend-tests:
     name: Backend (Pytest) Tests

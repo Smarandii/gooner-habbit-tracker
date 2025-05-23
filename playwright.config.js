@@ -3,6 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e',
+  timeout: 60000, // Global timeout for each test in milliseconds
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -23,6 +24,7 @@ export default defineConfig({
     command: 'npm run start',
     url: 'http://localhost:8000', // URL to poll to ensure server is up
     reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000, // Timeout for web server to start, in milliseconds
     stdout: 'pipe',
     stderr: 'pipe',
     env: {

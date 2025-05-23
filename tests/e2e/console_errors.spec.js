@@ -12,6 +12,9 @@ test.describe('Console Errors', () => {
     // Navigate to the root page
     await page.goto('/');
 
+    // Wait for network to be idle, indicating page has likely finished loading resources
+    await page.waitForLoadState('networkidle');
+
     // Assert that no console errors were detected
     expect(consoleErrors.length, `Console errors found: ${consoleErrors.join(', ')}`).toBe(0);
   });
