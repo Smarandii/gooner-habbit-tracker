@@ -66,7 +66,7 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(response.content)
-                print(response.content)
+                print(response.json()['text'])
             except Exception as e:
                 import traceback
                 traceback.print_exc()
