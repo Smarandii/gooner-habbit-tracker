@@ -240,27 +240,49 @@ let aiPageIdx = 0;
 export function splitSentences(text, maxChars = 99) {
   const sentences = text
     .trim()
-    .split(/(?<=[.!?])(?:\s+|\n+)/) // handles sentence endings and linebreaks
+    .split(/(?<=[.!?])(?:\s+|\n+)/)
     .map(s => s.trim())
-    .filter(Boolean); // remove empty strings
+    .filter(Boolean);
 
   const chunks = [];
   let currentChunk = '';
 
   for (const sentence of sentences) {
-    const testChunk = currentChunk ? `${currentChunk} ${sentence}` : sentence;
+    if (sentence.length > maxChars) {
+      // flush current chunk before handling oversized sentence
+      if (currentChunk) {
+        chunks.push(currentChunk);
+        currentChunk = '';
+      }
 
+      // split long sentence into words and build chunks manually
+      const words = sentence.split(/\s+/);
+      let chunk = '';
+
+      for (const word of words) {
+        const test = chunk ? `${chunk} ${word}` : word;
+        if (test.length <= maxChars) {
+          chunk = test;
+        } else {
+          if (chunk) chunks.push(chunk);
+          chunk = word.length <= maxChars ? word : word.slice(0, maxChars); // Hard trim if word itself too long
+        }
+      }
+
+      if (chunk) chunks.push(chunk);
+      continue;
+    }
+
+    const testChunk = currentChunk ? `${currentChunk} ${sentence}` : sentence;
     if (testChunk.length <= maxChars) {
       currentChunk = testChunk;
     } else {
       if (currentChunk) chunks.push(currentChunk);
-      // Push long sentence alone even if it exceeds maxChars
       currentChunk = sentence;
     }
   }
 
   if (currentChunk) chunks.push(currentChunk);
-
   return chunks;
 }
 
