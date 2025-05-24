@@ -244,8 +244,8 @@ function splitSentences(text) {
   let currentChunk = '';
   let wordCount = 0;
 
-  const MAX_WORDS = 20;
-  const MIN_SENTENCE_WORDS = 3;
+  const MAX_WORDS = 25;
+  const MIN_SENTENCE_WORDS = 5;
 
   for (const sentence of rawSentences) {
     const sentenceWords = sentence.trim().split(/\s+/).length;
