@@ -1,9 +1,8 @@
 import { geminiApiKey, isAiThinking, setIsAiThinking, userProfile, setGeminiApiKey } from './state.js';
 import { AI_COMPANION_NAME, ATTITUDE_MAPPING } from './config.js';
 import { displayAiMessage, promptForApiKeyModal, showToast } from './ui.js';
-import { getUserTitle, getUserAttitude } from './gamification.js';
+import { getUserTitle, getCompanionAttitude } from './gamification.js';
 import { saveData } from './data.js';
-import { personaPrompt, rootPrompt } from './ai_prompts.js';
 
 export async function checkAndPromptForApiKey() {
     return new Promise((resolve, reject) => {
@@ -33,11 +32,6 @@ export function handleSaveApiKey(inputKey) {
     }
 }
 
-function getAiAttitudeAndPersona(level) {
-    const attitude = getUserAttitude(level)
-    return personaPrompt(attitude, AI_COMPANION_NAME);
-}
-
 export async function generateAiResponse(eventType, contextDetails) {
     if (!geminiApiKey || isAiThinking) {
         if (!geminiApiKey) displayAiMessage("I need a valid API Key to speak.", true);
@@ -46,10 +40,7 @@ export async function generateAiResponse(eventType, contextDetails) {
     setIsAiThinking(true);
     displayAiMessage("Thinking...", false, true);
 
-    const userTitleText = getUserTitle(userProfile.level);
-    const personaBlock = getAiAttitudeAndPersona(userProfile.level);
-    const fullPrompt = rootPrompt({ userTitleText, AI_COMPANION_NAME, personaBlock, eventType, contextDetails });
-
+    const fullPrompt = rootPrompt({ userProfile, eventType, contextDetails });
     console.log("Gemini Prompt:", fullPrompt);
 
     try {
