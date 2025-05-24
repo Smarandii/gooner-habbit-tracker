@@ -47,7 +47,7 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                             "temperature": 1,
                             "topK": 1,
                             "topP": 1,
-                            "maxOutputTokens": 300,
+                            "maxOutputTokens": 600,
                         },
                         "safetySettings": [
                             { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE" },
@@ -66,6 +66,7 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(response.content)
+                print(response.content)
             except Exception as e:
                 import traceback
                 traceback.print_exc()
