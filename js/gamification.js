@@ -24,7 +24,7 @@ export function addXP(amount) {
 
 export function checkLevelUp() {
     let leveledUp = false;
-    const currentProfile = { ...userProfile }; // Work with a copy for modifications
+    const currentProfile = { ...userProfile };
 
     while (currentProfile.currentLevelXP >= currentProfile.xpForNextLevel && currentProfile.xpForNextLevel > 0) {
         currentProfile.level++;
@@ -36,7 +36,7 @@ export function checkLevelUp() {
         updateAiAvatarImage(currentProfile.level);
 
         if (geminiApiKey) {
-			const promptContext = levelUpContext({ level: currentProfile.level, userTitle: getUserTitle(currentProfile.level), totalXp: currentProfile.xp });
+			const promptContext = levelUpContext(currentProfile.level);
 			generateAiResponse("level_up", promptContext);
         }
     }
@@ -50,7 +50,7 @@ export function getUserTitle(level) {
     return LEVEL_TITLES.slice().reverse().find(lt => level >= lt.minLevel)?.title || LEVEL_TITLES[0].title;
 }
 
-export function getUserAttitude(level) {
+export function getCompanionAttitude(level) {
 	let attitude = ATTITUDE_MAPPING.level_0;
 
     const sortedLevels = Object.keys(ATTITUDE_MAPPING)

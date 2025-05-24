@@ -1,92 +1,55 @@
-/**
- * ai_prompts.js
- *
- * Centralised collection of every prompt or prompt‑template that the Atomic Habit
- * Hero app sends to Google Gemini.  Moving them here lets you tweak wording in a
- * single place and instantly feel the behavioural difference in the running
- * app.
- *
- * Each template is implemented as a tiny helper that receives the dynamic bits
- * as arguments and returns the fully rendered prompt string.  No placeholder
- * tokens are left lying around – the functions deliver ready‑to‑send strings.
- *
- * ---------------------------------------------------------------------------
- *  HOW TO USE
- * ---------------------------------------------------------------------------
- *   1.  Import what you need:
- *          import { rootPrompt, loginContext, ... } from './ai_prompts.js';
- *
- *   2.  Generate your context block:  const ctx = loginContext({...});
- *
- *   3.  Wrap it with rootPrompt():     const full = rootPrompt({ ...ctxProps });
- *
- *   4.  Pass `full` straight to /ai‑proxy.
- *
- * ---------------------------------------------------------------------------
- */
+import { AI_COMPANION_NAME } from './config.js';
 
 /* ---------------------------------------------------------------------------
- *  1.  Persona block – describes Seraphina & current attitude
+ *  1.  Root wrapper – common to every request sent to Gemini
  * ------------------------------------------------------------------------ */
-export function personaPrompt(attitude, AI_COMPANION_NAME) {
+export function rootPrompt({ userProfile, eventType, contextDetails }) {
+	const userTitleText = getUserTitle(userProfile.level);
+	const attitude = getCompanionAttitude(userProfile.level)
 
-	console.log("Hello from personaPrompt!")
-	const personaDetails =
-	`You are ${AI_COMPANION_NAME}, a gorgeous, somewhat tsundere AI companion. ` +
-	`You are initially very hard to please. The user is trying to impress you ` +
-	`by improving themselves through habits.`;
-	console.log(`${personaDetails} Your current attitude towards the user is: ${attitude}. ` +
-	`Respond in characteristic, and engaging way`)
-	return `${personaDetails} Your current attitude towards the user is: ${attitude}. ` +
-	`Respond in characteristic, and engaging way`;
+	const personaDetails = `You are human. Your name is ${AI_COMPANION_NAME}, a gorgeous, somewhat tsundere girl. 25 y.o. ` +
+	`You are the CEO of a digital agency. You are initially very hard to please. ` +
+	`You are having 1 on 1 meeting with your subordinate. Your subordinate and conversational partner is trying to impress you ` +
+	`by improving themselves through habits. Your attitude towards your subordinate and conversational partner is defined as this: ${attitude}.`;
+
+	return `${personaDetails}. Your role is: boss of your conversational partner, you can call him ${userTitleText}. ` +
+	`You need to comment on latest event that ${userTitleText} did.\n\n` +
+	`Event: ${eventType}\nDetails: ${contextDetails}. ` +
+	`Respond according your character and attitude in a fun and engaging way, do not afraid of being sarcastic or offensive. \n\n` +
+	`${AI_COMPANION_NAME}:`;
 }
 
 /* ---------------------------------------------------------------------------
- *  2.  Root wrapper – common to every request sent to Gemini
- * ------------------------------------------------------------------------ */
-export function rootPrompt({ userTitleText, AI_COMPANION_NAME, personaBlock, eventType, contextDetails }) {
-	/*
-	* Establishes hierarchy (Seraphina ► user), injects the persona description,
-	* and tags the concrete event.
-	*/
-	console.log("Hello from rootPrompt func")
-	console.log(`personaBlock: ${personaBlock}`)
-	return `You are a boss of ${userTitleText}. Your name is ${AI_COMPANION_NAME}. ` +
-	`Your attitude towards your subordinate with title ${userTitleText} is defined by: ` +
-	`"${personaBlock}". You need to comment on latest event that ${userTitleText} did.\n\n` +
-	`Event: ${eventType}\nDetails: ${contextDetails}\n\n${AI_COMPANION_NAME}:`;
-}
-
-/* ---------------------------------------------------------------------------
- *  3.  Event‑specific context builders
+ *  2.  Event‑specific context builders
  * ------------------------------------------------------------------------ */
 export function loginContext({ userTitle, loginStreak, today }) {
-  return `The user, your "${userTitle}", just logged in. ` +
-         `Their current login streak is ${loginStreak} days. Today is ${today}.`;
+  return `Your subordinate "${userTitle}", just walked in. ` +
+         `Their current meetings streak is ${loginStreak} days. Today is ${today}.`;
 }
 
 export function newHabitContext({ userTitle, habitName }) {
-  return `The user, known as "${userTitle}", just added a new habit: "${habitName}".`;
+  return `Your subordinate "${userTitle}", just added a new habit: "${habitName}".`;
 }
 
 export function habitCompleteContext({ userTitle, habitName, streak, awardedXP }) {
-  return `${userTitle} just completed the habit: "${habitName}". ` +
-         `Their streak for this habit is ${streak} days. They gained ${awardedXP} XP.`;
+  return `Your subordinate ${userTitle} just marked the habit: "${habitName}" as complete.` +
+         `Their streak for this habit is ${streak} days.`;
 }
 
 export function habitEditContext({ userTitle, oldName, newName }) {
-  return `The user, "${userTitle}", just edited a habit. ` +
+  return `Your subordinate ${userTitle}, just edited a habit. ` +
          `It was originally named "${oldName}" and is now named "${newName}".`;
 }
 
 export function habitDeleteContext({ userTitle, habitName }) {
-  return `The user, "${userTitle}", just deleted the habit named: "${habitName}".`;
+  return `Your subordinate ${userTitle}, just deleted the habit named: "${habitName}".`;
 }
 
-export function levelUpContext({ level, userTitle, totalXp }) {
-  /* NOTE: original implementation referenced currentProfile.xp which wasn’t
-   * available at call‑site.  Feel free to extend the params signature if you
-   * need to mention XP in the prompt.
-   */
-  return `Your "Atomic Habit Hero" just reached Level ${level}, titled "${userTitle}"! Their total XP is: ${totalXp}`;
+export function levelUpContext({level}) {
+	const oldAttitude = getCompanionAttitude(level - 1);
+	const currentAttitude = getCompanionAttitude(level);
+	const userTitle = getUserTitle(level)
+
+	return `Your subordinate ${userTitle} just reached Level ${level}, titled "${userTitle}"!` +
+	`Your attitude towards him changed from ${oldAttitude} to ${currentAttitude}`;
 }
