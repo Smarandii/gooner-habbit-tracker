@@ -234,12 +234,43 @@ export function setAiCompanionName(name) {
     domElements.aiNameEl.textContent = name;
 }
 
-/* ---------------- ui.js – pagination helpers (add near the top, after imports) ---------------- */
 let aiPages = [];
 let aiPageIdx = 0;
 
 function splitSentences(text) {
-  return text.trim().split(/(?<=[.!?])\s+/);      // safe sentence splitter
+  const rawSentences = text.trim().split(/(?<=[.!?])\s+/);
+
+  const chunks = [];
+  let currentChunk = '';
+  let wordCount = 0;
+
+  const MAX_WORDS = 20;
+  const MIN_SENTENCE_WORDS = 3;
+
+  for (const sentence of rawSentences) {
+    const sentenceWords = sentence.trim().split(/\s+/).length;
+
+    // If sentence is long enough, push previous chunk (if any) and this as its own
+    if (sentenceWords >= MIN_SENTENCE_WORDS) {
+      if (currentChunk) chunks.push(currentChunk.trim());
+      chunks.push(sentence.trim());
+      currentChunk = '';
+      wordCount = 0;
+    } else {
+      // Accumulate short sentences
+      currentChunk += sentence + ' ';
+      wordCount += sentenceWords;
+
+      if (wordCount >= MAX_WORDS) {
+        chunks.push(currentChunk.trim());
+        currentChunk = '';
+        wordCount = 0;
+      }
+    }
+  }
+
+  if (currentChunk) chunks.push(currentChunk.trim());
+  return chunks;
 }
 
 function renderAiPage() {
@@ -264,7 +295,6 @@ function renderAiPage() {
   if (next) next.onclick = () => { aiPageIdx++; renderAiPage(); };
 }
 
-/* ---------------- replace existing displayAiMessage with this version ---------------- */
 export function displayAiMessage(message, isError = false, isLoading = false) {
   const bubble = domElements.aiSpeechBubbleEl;
   if (!bubble) return;
