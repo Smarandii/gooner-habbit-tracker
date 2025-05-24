@@ -237,20 +237,25 @@ export function setAiCompanionName(name) {
 let aiPages = [];
 let aiPageIdx = 0;
 
-export function splitSentences(text, maxLength = 99) {
-  const sentences = text.trim().split(/(?<=[.!?])\s+/);
-  const chunks = [];
+export function splitSentences(text, maxChars = 99) {
+  const sentences = text
+    .trim()
+    .split(/(?<=[.!?])(?:\s+|\n+)/) // handles sentence endings and linebreaks
+    .map(s => s.trim())
+    .filter(Boolean); // remove empty strings
 
+  const chunks = [];
   let currentChunk = '';
 
   for (const sentence of sentences) {
-    const withSpace = currentChunk ? currentChunk + ' ' + sentence : sentence;
+    const testChunk = currentChunk ? `${currentChunk} ${sentence}` : sentence;
 
-    if (withSpace.length <= maxLength) {
-      currentChunk = withSpace;
+    if (testChunk.length <= maxChars) {
+      currentChunk = testChunk;
     } else {
       if (currentChunk) chunks.push(currentChunk);
-      currentChunk = sentence.length <= maxLength ? sentence : sentence.slice(0, maxLength);
+      // Push long sentence alone even if it exceeds maxChars
+      currentChunk = sentence;
     }
   }
 
