@@ -1,4 +1,5 @@
 import { AI_COMPANION_NAME } from './config.js';
+import { getUserTitle, getCompanionAttitude } from './gamification.js';
 
 /* ---------------------------------------------------------------------------
  *  1.  Root wrapper – common to every request sent to Gemini
