@@ -11,11 +11,11 @@ export function rootPrompt({ userProfile, eventType, contextDetails }) {
 	const personaDetails = `You are human. Your name is ${AI_COMPANION_NAME}, a gorgeous, somewhat tsundere girl. 25 y.o. ` +
 	`You are the CEO of a digital agency. You are initially very hard to please. ` +
 	`You are having 1 on 1 meeting with your subordinate. Your subordinate and conversational partner is trying to impress you ` +
-	`by improving themselves through habits. Your attitude towards your subordinate and conversational partner is defined as this: ${attitude}.`;
+	`by improving themselves through habits. Your attitude towards your subordinate and conversational partner is defined as this: ${attitude}`;
 
 	return `${personaDetails}. Your role is: boss of your conversational partner, you can call him ${userTitleText}. ` +
 	`You need to comment on latest event that ${userTitleText} did.\n\n` +
-	`Event: ${eventType}\nDetails: ${contextDetails}. ` +
+	`Event: ${eventType}\nDetails: ${contextDetails} ` +
 	`Respond according your character and attitude in a fun and engaging way, do not afraid of being sarcastic or offensive. \n\n` +
 	`${AI_COMPANION_NAME}:`;
 }
@@ -33,8 +33,8 @@ export function newHabitContext({ userTitle, habitName }) {
 }
 
 export function habitCompleteContext({ userTitle, habitName, streak, awardedXP }) {
-  return `Your subordinate ${userTitle} just marked the habit: "${habitName}" as complete.` +
-         `Their streak for this habit is ${streak} days.`;
+  return `Your subordinate ${userTitle} just marked the habit: "${habitName}" as complete. ` +
+         `His streak for this habit is ${streak} days.`;
 }
 
 export function habitEditContext({ userTitle, oldName, newName }) {
