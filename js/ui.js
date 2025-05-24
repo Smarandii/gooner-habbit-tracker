@@ -237,39 +237,25 @@ export function setAiCompanionName(name) {
 let aiPages = [];
 let aiPageIdx = 0;
 
-function splitSentences(text) {
-  const rawSentences = text.trim().split(/(?<=[.!?])\s+/);
-
+export function splitSentences(text, maxLength = 99) {
+  const sentences = text.trim().split(/(?<=[.!?])\s+/);
   const chunks = [];
+
   let currentChunk = '';
-  let wordCount = 0;
 
-  const MAX_WORDS = 20;
-  const MIN_SENTENCE_WORDS = 5;
+  for (const sentence of sentences) {
+    const withSpace = currentChunk ? currentChunk + ' ' + sentence : sentence;
 
-  for (const sentence of rawSentences) {
-    const sentenceWords = sentence.trim().split(/\s+/).length;
-
-    // If sentence is long enough, push previous chunk (if any) and this as its own
-    if (sentenceWords >= MIN_SENTENCE_WORDS) {
-      if (currentChunk) chunks.push(currentChunk.trim());
-      chunks.push(sentence.trim());
-      currentChunk = '';
-      wordCount = 0;
+    if (withSpace.length <= maxLength) {
+      currentChunk = withSpace;
     } else {
-      // Accumulate short sentences
-      currentChunk += sentence + ' ';
-      wordCount += sentenceWords;
-
-      if (wordCount >= MAX_WORDS) {
-        chunks.push(currentChunk.trim());
-        currentChunk = '';
-        wordCount = 0;
-      }
+      if (currentChunk) chunks.push(currentChunk);
+      currentChunk = sentence.length <= maxLength ? sentence : sentence.slice(0, maxLength);
     }
   }
 
-  if (currentChunk) chunks.push(currentChunk.trim());
+  if (currentChunk) chunks.push(currentChunk);
+
   return chunks;
 }
 
