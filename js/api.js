@@ -3,6 +3,7 @@ import { AI_COMPANION_NAME, ATTITUDE_MAPPING } from './config.js';
 import { displayAiMessage, promptForApiKeyModal, showToast } from './ui.js';
 import { getUserTitle, getCompanionAttitude } from './gamification.js';
 import { saveData } from './data.js';
+import { rootPrompt } from './ai_prompts.js';
 
 export async function checkAndPromptForApiKey() {
     return new Promise((resolve, reject) => {
