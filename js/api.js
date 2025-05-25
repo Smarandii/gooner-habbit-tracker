@@ -84,9 +84,6 @@ export async function generateAiResponse(eventType, contextDetails) {
         }
     } catch (error) {
         console.error("Error calling Gemini API:", error);
-        if (!error.message.includes("API Error")) {
-             displayAiMessage("Oops! I couldn't connect to my thoughts. Check the console.", true);
-        }
     } finally {
         setIsAiThinking(false);
     }
