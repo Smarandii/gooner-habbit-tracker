@@ -24,8 +24,10 @@ export function handleSaveApiKey(inputKey) {
         setGeminiApiKey(inputKey);
         saveData();
         // closeApiKeyModal(); // ui.js should handle this or main.js
-        showToast("API Key saved! Seraphina is now active.", "success");
+        showToast(`API Key saved! ${AI_COMPANION_NAME} is now active.`, "success");
         displayAiMessage("Systems activated. It's... a pleasure to meet you, I suppose.", false);
+
+        populateModelSelector();
         return true;
     } else {
         showToast("API Key cannot be empty.", "error");
@@ -86,5 +88,53 @@ export async function generateAiResponse(eventType, contextDetails) {
         console.error("Error calling Gemini API:", error);
     } finally {
         setIsAiThinking(false);
+    }
+}
+
+
+export async function populateModelSelector() {
+    const selector = document.getElementById('modelSelector');
+    if (!selector) return;
+
+    if (!geminiApiKey) return;
+
+    try {
+        const res = await fetch('/list-models', {
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body   : JSON.stringify({ apiKey: geminiApiKey })
+        });
+
+        if (!res.ok) {
+            console.warn('[populateModelSelector] HTTP', res.status);
+            return;
+        }
+
+		console.log(res);
+        const data = await res.json();
+        if (!Array.isArray(data.models)) return;
+
+        const previouslySelected = localStorage.getItem('selectedModel');
+
+        selector.innerHTML = '';
+
+        data.models.forEach(m => {
+            // API returns names like "models/gemini-1.5-pro-latest"
+            const shortName = m.name.split('/').pop();
+            const opt = document.createElement('option');
+            opt.value = shortName;
+            opt.textContent = m.displayName || shortName;
+            selector.appendChild(opt);
+        });
+
+        // fallback: keep whatever user had chosen earlier (if still present)
+        if (previouslySelected && [...selector.options].some(o => o.value === previouslySelected)) {
+            selector.value = previouslySelected;
+        } else {
+            selector.value = selector.options[0]?.value || '';
+            localStorage.setItem('selectedModel', selector.value);
+        }
+    } catch (err) {
+        console.error('[populateModelSelector] failed:', err);
     }
 }
