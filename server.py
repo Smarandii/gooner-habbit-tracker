@@ -47,7 +47,7 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                             "temperature": 1,
                             "topK": 1,
                             "topP": 1,
-                            "maxOutputTokens": 600,
+                            "maxOutputTokens": 5000,
                         },
                         "safetySettings": [
                             { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE" },
