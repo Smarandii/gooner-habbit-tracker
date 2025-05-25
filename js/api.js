@@ -38,6 +38,7 @@ export async function generateAiResponse(eventType, contextDetails) {
         if (!geminiApiKey) displayAiMessage("I need a valid API Key to speak.", true);
         return;
     }
+    const selectedModel = localStorage.getItem('selectedModel')
     setIsAiThinking(true);
     displayAiMessage("Thinking...", false, true);
 
@@ -48,8 +49,10 @@ export async function generateAiResponse(eventType, contextDetails) {
         const response = await fetch("/ai-proxy", {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ apiKey: geminiApiKey, prompt: fullPrompt })
+			body: JSON.stringify({ apiKey: geminiApiKey, prompt: fullPrompt, model: selectedModel })
 		});
+
+		console.log(response)
 
         if (!response.ok) {
             const errorData = await response.json();
