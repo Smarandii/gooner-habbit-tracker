@@ -7,7 +7,7 @@ import {
 import { performDailyResetIfNeeded, handleUserAddHabit as processUserAddedHabit } from './habits.js';
 import { addXP, getUserTitle } from './gamification.js'; // XP_FOR_DAILY_LOGIN is now imported from config
 import { XP_FOR_DAILY_LOGIN, AI_COMPANION_NAME } from './config.js'; // Import constants
-import { checkAndPromptForApiKey, handleSaveApiKey as processSaveApiKey, generateAiResponse } from './api.js';
+import { checkAndPromptForApiKey, handleSaveApiKey as processSaveApiKey, generateAiResponse, populateModelSelector } from './api.js';
 import { userProfile, geminiApiKey, setUserProfile } from './state.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
 import { loginContext } from './ai_prompts.js';
@@ -66,6 +66,7 @@ async function initApp() {
 
     try {
         await checkAndPromptForApiKey();
+        populateModelSelector();
     } catch (error) {
         console.warn("API Key setup or check failed initially:", error);
         // displayAiMessage is handled by checkAndPromptForApiKey if it fails to get key

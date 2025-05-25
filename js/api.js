@@ -24,8 +24,10 @@ export function handleSaveApiKey(inputKey) {
         setGeminiApiKey(inputKey);
         saveData();
         // closeApiKeyModal(); // ui.js should handle this or main.js
-        showToast("API Key saved! Seraphina is now active.", "success");
+        showToast(`API Key saved! ${AI_COMPANION_NAME} is now active.`, "success");
         displayAiMessage("Systems activated. It's... a pleasure to meet you, I suppose.", false);
+
+        populateModelSelector();
         return true;
     } else {
         showToast("API Key cannot be empty.", "error");
@@ -38,6 +40,7 @@ export async function generateAiResponse(eventType, contextDetails) {
         if (!geminiApiKey) displayAiMessage("I need a valid API Key to speak.", true);
         return;
     }
+    const selectedModel = localStorage.getItem('selectedModel')
     setIsAiThinking(true);
     displayAiMessage("Thinking...", false, true);
 
@@ -48,8 +51,10 @@ export async function generateAiResponse(eventType, contextDetails) {
         const response = await fetch("/ai-proxy", {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ apiKey: geminiApiKey, prompt: fullPrompt })
+			body: JSON.stringify({ apiKey: geminiApiKey, prompt: fullPrompt, model: selectedModel })
 		});
+
+		console.log(response)
 
         if (!response.ok) {
             const errorData = await response.json();
@@ -81,10 +86,55 @@ export async function generateAiResponse(eventType, contextDetails) {
         }
     } catch (error) {
         console.error("Error calling Gemini API:", error);
-        if (!error.message.includes("API Error")) {
-             displayAiMessage("Oops! I couldn't connect to my thoughts. Check the console.", true);
-        }
     } finally {
         setIsAiThinking(false);
+    }
+}
+
+
+export async function populateModelSelector() {
+    const selector = document.getElementById('modelSelector');
+    if (!selector) return;
+
+    if (!geminiApiKey) return;
+
+    try {
+        const res = await fetch('/list-models', {
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body   : JSON.stringify({ apiKey: geminiApiKey })
+        });
+
+        if (!res.ok) {
+            console.warn('[populateModelSelector] HTTP', res.status);
+            return;
+        }
+
+		console.log(res);
+        const data = await res.json();
+        if (!Array.isArray(data.models)) return;
+
+        const previouslySelected = localStorage.getItem('selectedModel');
+
+        selector.innerHTML = '';
+
+        data.models.forEach(m => {
+            // API returns names like "models/gemini-1.5-pro-latest"
+            const shortName = m.name.split('/').pop();
+            const opt = document.createElement('option');
+            opt.value = shortName;
+            opt.textContent = m.displayName || shortName;
+            selector.appendChild(opt);
+        });
+
+        // fallback: keep whatever user had chosen earlier (if still present)
+        if (previouslySelected && [...selector.options].some(o => o.value === previouslySelected)) {
+            selector.value = previouslySelected;
+        } else {
+            selector.value = selector.options[0]?.value || '';
+            localStorage.setItem('selectedModel', selector.value);
+        }
+    } catch (err) {
+        console.error('[populateModelSelector] failed:', err);
     }
 }

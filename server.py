@@ -47,7 +47,7 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                             "temperature": 1,
                             "topK": 1,
                             "topP": 1,
-                            "maxOutputTokens": 600,
+                            "maxOutputTokens": 5000,
                         },
                         "safetySettings": [
                             { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE" },
@@ -76,6 +76,36 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 error_response = {"error": f"Server error: {str(e)}"}
                 self.wfile.write(json.dumps(error_response).encode())
+
+        elif self.path == '/list-models':
+            content_length = int(self.headers['Content-Length'])
+            body = self.rfile.read(content_length)
+            data = json.loads(body)
+
+            api_key  = data.get("apiKey")
+            page_size = data.get("pageSize", 100)
+
+            if not api_key:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(b"Missing apiKey")
+                return
+
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models?pageSize={page_size}&key={api_key}"
+                resp = requests.get(url, timeout=15)
+
+                self.send_response(resp.status_code)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(resp.content)
+            except Exception as e:
+                import traceback; traceback.print_exc()
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                err = {"error": f"Server error while listing models: {str(e)}"}
+                self.wfile.write(json.dumps(err).encode())
 
 Handler = MyHttpRequestHandler
 
