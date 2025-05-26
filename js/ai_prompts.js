@@ -1,5 +1,5 @@
 import { AI_COMPANION_NAME } from './config.js';
-import { getUserTitle, getCompanionAttitude } from './gamification.js';
+import { getUserTitle, getCompanionAttitude } from './title_helpers.js';
 
 /* ---------------------------------------------------------------------------
  *  1.  Root wrapper – common to every request sent to Gemini
@@ -48,11 +48,11 @@ export function habitDeleteContext({ userTitle, habitName }) {
   return `Your subordinate ${userTitle}, just deleted the habit named: "${habitName}".`;
 }
 
-export function levelUpContext({level}) {
+export function levelUpContext({ level }) {
 	const oldAttitude = getCompanionAttitude(level - 1);
 	const currentAttitude = getCompanionAttitude(level);
 	const userTitle = getUserTitle(level)
 
-	return `Your subordinate ${userTitle} just reached Level ${level}, titled "${userTitle}"!` +
+	return `Your subordinate ${userTitle} just reached Level ${level}, titled "${userTitle}"! ` +
 	`Your attitude towards him changed from ${oldAttitude} to ${currentAttitude}`;
 }
