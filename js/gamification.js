@@ -36,7 +36,7 @@ export function checkLevelUp() {
         updateAiAvatarImage(currentProfile.level);
 
         if (geminiApiKey) {
-			const promptContext = levelUpContext(currentProfile.level);
+			const promptContext = levelUpContext({ level: currentProfile.level });
 			generateAiResponse("level_up", promptContext);
         }
     }
