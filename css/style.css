@@ -97,6 +97,7 @@ button.delete-btn:hover { background-color: #c0392b; }
 
 .habits-list { list-style-type: none; padding: 0; }
 .habit-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 8px; background-color: #fdfdfd; transition: background-color 0.3s, border-left-width 0.3s, border-left-color 0.3s; border-left: 5px solid transparent; cursor: grab; }
+.habit-item:active { cursor: grabbing; }
 .habit-item.completed-today { background-color: #e8f5e9; }
 .habit-item.completed-today .habit-name { text-decoration: line-through; color: #555; }
 .habit-item.streak-1 { border-left-color: #aed581; } .habit-item.streak-5 { border-left-color: #ffb74d; }
