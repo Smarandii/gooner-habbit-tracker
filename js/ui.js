@@ -7,7 +7,7 @@ import {
     saveHabitEdit,
     cancelHabitEdit,
     moveHabitUp,
-    moveHabitDown
+    moveHabitDown,
     updateHabitOrder
 } from './habits.js';
 import { getUserTitle } from './gamification.js';
