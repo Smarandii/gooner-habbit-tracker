@@ -229,3 +229,14 @@ export function deleteHabit(habitId) {
         }
     }
 }
+
+export function updateHabitOrder(oldIdx, newIdx) {
+    if (oldIdx === newIdx) return;
+    const reordered = [...habits];
+    const [moved] = reordered.splice(oldIdx, 1);
+    reordered.splice(newIdx, 0, moved);
+
+    setHabits(reordered);
+    saveData();
+    renderHabits();
+}
