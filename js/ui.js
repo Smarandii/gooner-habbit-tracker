@@ -63,7 +63,33 @@ export function renderHabits() {
             info.classList.add('habit-info');
 
             if (habit.isEditing) {
-                /* … existing edit-mode block unchanged … */
+                const editInput = document.createElement('input');
+				editInput.type  = 'text';
+				editInput.value = habit.name;
+				editInput.classList.add('edit-input');
+				editInput.setAttribute('data-habit-id', habit.id);
+
+				// save on <Enter>, cancel on <Esc>
+				editInput.addEventListener('keydown', e => {
+					if (e.key === 'Enter')   saveHabitEdit(habit.id, editInput.value);
+					if (e.key === 'Escape')  cancelHabitEdit(habit.id);
+				});
+				info.appendChild(editInput);
+
+				// --- action buttons -------------------------------
+				const saveBtn = document.createElement('button');
+				saveBtn.textContent = '💾';
+				saveBtn.title = 'Save';
+				saveBtn.addEventListener('click', () => saveHabitEdit(habit.id, editInput.value));
+
+				const cancelBtn = document.createElement('button');
+				cancelBtn.textContent = '✖️';
+				cancelBtn.title = 'Cancel';
+				cancelBtn.addEventListener('click', () => cancelHabitEdit(habit.id));
+
+				// re-use the same .habit-controls container
+				controls.appendChild(saveBtn);
+				controls.appendChild(cancelBtn);
             } else {
                 const name = document.createElement('span');
                 name.classList.add('habit-name');
