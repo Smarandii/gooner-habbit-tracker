@@ -310,7 +310,7 @@ button.delete-btn:hover { color: #c0392b; }
 .ai-panel {
     width: 410px;
     position: absolute;
-    left: 30px;
+    left: 370px;
     background-color: #e9ecef;
     padding: 20px;
     border-radius: 10px;
