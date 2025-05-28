@@ -1,170 +1,285 @@
+/* ============================================================================
+   GLOBAL LAYOUT
+   ========================================================================== */
 body {
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-	margin: 0;
-	padding: 20px;
-	background-color: #f0f2f5;
-	color: #333;
-	display: flex; /* Changed for layout */
-	/* flex-direction: column; remove */
-	/* align-items: center; remove */
-	justify-content: center; /* Center the overall layout container */
-	min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
 }
 
 .app-layout {
-	display: flex;
-	width: 100%;
-	max-width: 1200px; /* Max width for the whole app */
-	gap: 20px;
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    gap: 20px;
 }
 
+/* ============================================================================
+   AI PANEL
+   ========================================================================== */
 #aiAvatar {
-	width: 320px;
-	height: 490px;
-	object-fit: cover;
-	border: 3px solid #fff;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-	margin-bottom: 15px;
+    width: 320px;
+    height: 490px;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    margin-bottom: 15px;
 }
 
 #aiName {
-	font-size: 1.4em;
-	font-weight: bold;
-	color: #2c3e50;
-	margin-bottom: 10px;
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 10px;
 }
 
 .speech-bubble {
-	background-color: #fff;
-	border-radius: 8px;
-	padding: 15px;
-	margin-top: 10px;
-	font-size: 1.25em;
-	color: #333;
-	width: 100%;
-	min-height: 80px; /* Give it some initial height */
-	border: 1px solid #ddd;
-	position: relative; /* For pseudo-element tail */
-	box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
+    font-size: 1.25em;
+    color: #333;
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid #ddd;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
-.speech-bubble.thinking {
-	font-style: italic;
-	color: #777;
-}
-.speech-bubble.error {
-	color: #e74c3c;
-	font-weight: bold;
-}
+.speech-bubble.thinking { font-style: italic; color: #777; }
+.speech-bubble.error   { color: #e74c3c; font-weight: bold; }
 
-/* Basic speech bubble tail */
 .speech-bubble::before {
-	content: '';
-	position: absolute;
-	top: -10px; /* Position above the bubble */
-	left: 50%;
-	transform: translateX(-50%);
-	border-width: 0 10px 10px 10px;
-	border-style: solid;
-	border-color: transparent transparent #fff transparent;
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 10px 10px 10px;
+    border-style: solid;
+    border-color: transparent transparent #fff transparent;
 }
 
-.container { /* Existing habit tracker container */
-	background-color: #fff;
-	padding: 25px;
-	border-radius: 10px;
-	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-	width: 100%;
-	margin-bottom: 20px;
+/* ============================================================================
+   MAIN CONTAINER
+   ========================================================================== */
+.container {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin-bottom: 20px;
 }
 
 h1, h2 { color: #2c3e50; text-align: center; }
-h1 { margin-bottom: 5px; }
+h1      { margin-bottom: 5px; }
 
-.user-stats { text-align: center; margin-bottom: 25px; padding: 15px; background-color: #e9ecef; border-radius: 8px; }
-.user-stats p { margin: 5px 0; font-size: 1.1em; }
-.user-stats .level-title { font-weight: bold; color: #1abc9c; font-size: 1.3em; }
-.xp-bar-container { width: 100%; background-color: #ddd; border-radius: 5px; margin-top: 10px; height: 25px; overflow: hidden; border: 1px solid #ccc; }
-.xp-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #3498db, #2ecc71); border-radius: 5px 0 0 5px; transition: width 0.5s ease-in-out; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.9em; }
+/* ---------------- user stats ---------------- */
+.user-stats { 
+    text-align: center; 
+    margin-bottom: 25px; 
+    padding: 15px; 
+    background-color: #e9ecef; 
+    border-radius: 8px; 
+}
+.user-stats p           { margin: 5px 0; font-size: 1.1em; }
+.user-stats .level-title{ font-weight: bold; color: #1abc9c; font-size: 1.3em; }
+
+.xp-bar-container {
+    width: 100%;
+    background-color: #ddd;
+    border-radius: 5px;
+    margin-top: 10px;
+    height: 25px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+.xp-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    border-radius: 5px 0 0 5px;
+    transition: width 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9em;
+}
 .xp-bar.full { border-radius: 5px; }
 
+/* ---------------- input ---------------- */
 .input-group { display: flex; margin-bottom: 20px; }
-input[type="text"] { flex-grow: 1; padding: 12px; border: 1px solid #ccc; border-radius: 5px 0 0 5px; font-size: 1em; }
-input[type="text"]:focus { outline: none; border-color: #3498db; box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2); }
-button { padding: 12px 20px; background-color: #3498db; color: white; border: none; border-radius: 0 5px 5px 0; cursor: pointer; font-size: 1em; transition: background-color 0.2s; }
-button:hover { background-color: #2980b9; }
-button.delete-btn { background-color: #e74c3c; border-radius: 5px; margin-left: 10px; padding: 8px 12px; font-size: 0.9em; }
-button.delete-btn:hover { background-color: #c0392b; }
-
-.habits-list { list-style-type: none; padding: 0; }
-.habit-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border: 1px solid #eee; margin-bottom: 10px; border-radius: 8px; background-color: #fdfdfd; transition: background-color 0.3s, border-left-width 0.3s, border-left-color 0.3s; border-left: 5px solid transparent; }
-.habit-item.completed-today { background-color: #e8f5e9; }
-.habit-item.completed-today .habit-name { text-decoration: line-through; color: #555; }
-.habit-item.streak-1 { border-left-color: #aed581; } .habit-item.streak-5 { border-left-color: #ffb74d; }
-.habit-item.streak-10 { border-left-color: #90a4ae; } .habit-item.streak-20 { border-left-color: #4fc3f7; }
-.habit-item.streak-30 { border-left-color: #ffd700; background-image: linear-gradient(45deg, #fff8e1, #ffecb3); }
-.habit-item.streak-30 .habit-name { font-weight: bold; color: #c57900; }
-.habit-info { flex-grow: 1; display: flex; flex-direction: column; }
-.habit-name { font-size: 1.1em; }
-.habit-streak-display { font-size: 0.8em; color: #777; margin-top: 2px; }
-.habit-item.streak-30 .habit-streak-display { color: #b8860b; }
-.habit-item input[type="checkbox"] { margin-right: 15px; transform: scale(1.5); cursor: pointer; accent-color: #2ecc71; }
-
-.toast { visibility: hidden; min-width: 250px; background-color: #2ecc71; color: white; text-align: center; border-radius: 5px; padding: 16px; position: fixed; z-index: 1001; left: 50%; transform: translateX(-50%); bottom: 30px; font-size: 17px; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
-.toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s forwards; }
-@keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-@keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-
-/* API Key Modal */
-.modal {
-	display: none; position: fixed; z-index: 1000; left: 0; top: 0;
-	width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);
-	align-items: center; justify-content: center;
+input[type="text"] {
+    flex-grow: 1;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+    font-size: 1em;
 }
-.modal-content {
-	background-color: #fff; margin: auto; padding: 30px; border-radius: 10px;
-	width: 90%; max-width: 500px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+input[type="text"]:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
-.modal-content h3 { margin-top: 0; color: #2c3e50; }
-.modal-content p { margin-bottom: 15px; font-size: 0.95em; color: #555; }
-#apiKeyInput { width: calc(100% - 24px); padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; }
-#saveApiKeyBtn { background-color: #2ecc71; padding: 12px 25px; font-size: 1em; border-radius: 5px; }
-#saveApiKeyBtn:hover { background-color: #27ae60; }
-
-.habit-controls button { /* General style for controls within a habit item */
-    background-color: #bdc3c7;
-    color: #2c3e50;
-    padding: 5px 8px;
-    font-size: 0.8em;
-    border-radius: 3px;
-    margin-left: 5px;
+button {
+    padding: 12px 20px;
+    background-color: #3498db;
+    color: white;
     border: none;
+    border-radius: 0 5px 5px 0;
     cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s;
 }
-.habit-controls button:hover {
-    background-color: #95a5a6;
+button:hover { background-color: #2980b9; }
+
+/* ============================================================================
+   HABIT LIST
+   ========================================================================== */
+.habits-list { list-style-type: none; padding: 0; }
+
+.habit-item {
+    display: flex;
+    align-items: flex-start;          /* keeps checkbox + controls top-aligned */
+    justify-content: space-between;
+    padding: 12px 15px;
+    border: 1px solid #eee;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: #fdfdfd;
+    transition: background-color 0.3s, border-left-width 0.3s, border-left-color 0.3s;
+    border-left: 5px solid transparent;
+    cursor: grab;
 }
-.habit-controls button:disabled {
-    background-color: #ecf0f1;
-    color: #bdc3c7;
-    cursor: not-allowed;
+.habit-item:active { cursor: grabbing; }
+
+.habit-item.completed-today           { background-color: #e8f5e9; }
+.habit-item.completed-today .habit-name{ text-decoration: line-through; color: #555; }
+
+.habit-item.streak-1  { border-left-color: #aed581; }
+.habit-item.streak-5  { border-left-color: #ffb74d; }
+.habit-item.streak-10 { border-left-color: #90a4ae; }
+.habit-item.streak-20 { border-left-color: #4fc3f7; }
+.habit-item.streak-30 {
+    border-left-color: #ffd700;
+    background-image: linear-gradient(45deg, #fff8e1, #ffecb3);
+}
+.habit-item.streak-30 .habit-name      { font-weight: bold; color: #c57900; }
+
+/* --- inner pieces --- */
+.habit-info  { flex-grow: 1; display: flex; flex-direction: column; }
+
+.habit-name  { font-size: 1.1em; word-break: break-word; }
+
+.habit-streak-display { font-size: 0.8em; color: #777; margin-top: 2px; }
+.habit-item.streak-30 .habit-streak-display{ color: #b8860b; }
+
+.habit-item input[type="checkbox"] {
+    margin-right: 15px;
+    transform: scale(1.5);
+    cursor: pointer;
+    accent-color: #2ecc71;
 }
 
+/* ---------------- controls ---------------- */
+.habit-controls {
+    display: flex;           /* NEW – row layout */
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;     /* prevents wrapping */
+    flex-shrink: 0;
+}
+.habit-controls button {
+    background-color: transparent;
+    border: none;
+    font-size: 1.25em;
+    line-height: 1;
+    padding: 2px 6px;
+    cursor: pointer;
+    color: #7f8c8d;
+}
+.habit-controls button:hover { color: #2c3e50; }
+
+button.delete-btn { color: #e74c3c; }
+button.delete-btn:hover { color: #c0392b; }
+
+/* ---------------- edit-mode input ---------------- */
 .habit-item .edit-input {
     flex-grow: 1;
     padding: 8px;
     font-size: 1em;
     border: 1px solid #3498db;
     border-radius: 3px;
-    margin-right: 10px; /* Space before save/cancel buttons */
+    margin-right: 10px;
 }
 
-.model-label {
-    margin-top: 12px;
-    font-size: 0.9em;
-    font-weight: 600;
-    color: #2c3e50;
+/* ============================================================================
+   TOAST
+   ========================================================================== */
+.toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #2ecc71;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1001;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 30px;
+    font-size: 17px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
+.toast.show { 
+    visibility: visible; 
+    animation: fadein 0.5s, fadeout 0.5s 2.5s forwards; 
+}
+@keyframes fadein  { from {bottom: 0;  opacity: 0;} to {bottom: 30px; opacity: 1;} }
+@keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0;  opacity: 0;} }
 
+/* ============================================================================
+   API-KEY MODAL
+   ========================================================================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background-color: #fff;
+    margin: auto;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%; max-width: 500px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+.modal-content h3 { margin-top: 0; color: #2c3e50; }
+.modal-content p  { margin-bottom: 15px; font-size: 0.95em; color: #555; }
+#apiKeyInput      { width: calc(100% - 24px); padding: 12px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; }
+#saveApiKeyBtn    { background-color: #2ecc71; padding: 12px 25px; font-size: 1em; border-radius: 5px; }
+#saveApiKeyBtn:hover { background-color: #27ae60; }
+
+/* ============================================================================
+   MODEL SELECTOR + MISC
+   ========================================================================== */
+.model-label    { margin-top: 12px; font-size: 0.9em; font-weight: 600; color: #2c3e50; }
 .model-selector {
     margin-top: 6px;
     padding: 10px;
@@ -181,21 +296,17 @@ button.delete-btn:hover { background-color: #c0392b; }
     background-color: #3498db;
     color: white;
     border: none;
-	border-radius: 10px 10px 10px 10px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 1em;
     transition: background-color 0.2s;
     margin-top: 0.6em;
 }
+.change-api-key-button:hover { background-color: #2980b9; }
 
-.app-layout {
-    display: flex;
-    width: 100%;
-    max-width: 1200px; /* Max width for the whole app */
-    gap: 20px;
-    position: relative; /* Crucial: Establishes a positioning context for .ai-panel */
-}
-
+/* ============================================================================
+   PAGE LAYOUT HELPER
+   ========================================================================== */
 .ai-panel {
     width: 410px;
     position: absolute;
@@ -208,111 +319,39 @@ button.delete-btn:hover { background-color: #c0392b; }
     flex-direction: column;
     align-items: center;
     text-align: center;
-	height: 75%;
+    height: 75%;
     z-index: 100;
 }
 
 .main-content {
-    flex-grow: 1; /* Takes remaining space */
-    max-width: 700px; /* Keep habit tracker width consistent */
-    /* Add margin to prevent overlap with the absolutely positioned .ai-panel */
-    margin-left: 500px;
+    flex-grow: 1;
+    max-width: 700px;
+    margin-left: 500px;   /* prevents overlap with absolute ai-panel */
 }
 
-/* -------- style.css – controls for AI speech pagination -------- */
+/* ============================================================================
+   AI SPEECH PAGINATION
+   ========================================================================== */
 .ai-nav {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 6px;
-}
-.ai-nav button {
-  background: #3498db;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 2px 8px;
-  font-size: 0.7em;
-  cursor: pointer;
-}
-
-.ai-nav button:disabled {
-  background: #b0c4d6;
-  cursor: not-allowed;
-}
-.ai-count {
-  font-size: 0.7em;
-  line-height: 18px;
-}
-
-.speech-bubble{
-    position:relative;            /* establishes positioning context      */
-    display:flex;                 /* enables easy vertical layout         */
-    flex-direction:column;
-    padding-bottom:38px;          /* room for the fixed nav buttons       */
-}
-
-/* span that holds the text should take remaining height */
-.speech-bubble > span{
-    flex:1 1 auto;                /* grows/shrinks, pushes nav downward   */
-}
-
-/* absolutely anchor nav to bubble’s bottom-centre */
-.ai-nav{
     position:absolute;
-    bottom:8px;                   /* distance from bubble bottom edge     */
+    bottom:8px;
     left:50%;
-    transform:translateX(-50%);   /* perfect horizontal centring          */
+    transform:translateX(-50%);
     display:flex;
     justify-content:center;
     gap:8px;
-    margin-top:0;                 /* overrides earlier rule               */
 }
-
-.habits-list { list-style-type: none; padding: 0; }
-.habit-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 15px;
-    border: 1px solid #eee;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    background-color: #fdfdfd;
-    transition: background-color 0.3s, border-left-width 0.3s, border-left-color 0.3s;
-    border-left: 5px solid transparent;
-    cursor: grab;                          /* NEW – shows draggable cursor */
-}
-.habit-item:active { cursor: grabbing; }   /* NEW */
-
-/* long titles look neat */
-.habit-info { flex-grow: 1; display: flex; flex-direction: column; }
-
-.habit-name {
-    font-size: 1.1em;
-    max-width: 60ch;        /* NEW – truncate roughly @ 60 characters */
-    white-space: nowrap;    /* NEW */
-    overflow: hidden;       /* NEW */
-    text-overflow: ellipsis;/* NEW */
-}
-
-/* show full text on hover */
-.habit-name:hover {
-    white-space: normal;
-    overflow: visible;
-}
-
-/* ---------- CONTROLS ---------- */
-.habit-controls button {
-    background-color: transparent; /* NEW: icon-style */
+.ai-nav button {
+    background: #3498db;
+    color: #fff;
     border: none;
-    font-size: 1.25em;
-    line-height: 1;
-    padding: 2px 6px;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.7em;
     cursor: pointer;
-    color: #7f8c8d;
 }
-.habit-controls button:hover { color: #2c3e50; }
+.ai-nav button:disabled { background: #b0c4d6; cursor: not-allowed; }
+.ai-count              { font-size: 0.7em; line-height: 18px; }
 
-button.delete-btn { color: #e74c3c; }
-button.delete-btn:hover { color: #c0392b; }
+.speech-bubble { position:relative; display:flex; flex-direction:column; padding-bottom:38px; }
+.speech-bubble > span { flex:1 1 auto; }
