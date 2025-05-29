@@ -30,7 +30,7 @@ export function rootPrompt({ userProfile, eventType, contextDetails }) {
 
 	return `<event>${eventType}</event>\n` +
 	`<details>${contextDetails}</details>\n` +
-	`<universe_setting_details>${universeSettingDetails}</universe_setting_details>\n`
+	`<universe_setting_details>${universeSettingDetails}</universe_setting_details>\n` +
 	`<persona_details>${personaDetails}</persona_details>\n` +
 	`<response_instructions>${responseInstructions}</response_instructions>\n\n` +
 	`${AI_COMPANION_NAME}:`;
