@@ -62,6 +62,10 @@ export function renderHabits() {
             const info = document.createElement('div');
             info.classList.add('habit-info');
 
+            /* Controls */
+            const controls = document.createElement('div');
+            controls.classList.add('habit-controls');
+
             if (habit.isEditing) {
                 const editInput = document.createElement('input');
 				editInput.type  = 'text';
@@ -105,9 +109,7 @@ export function renderHabits() {
             }
             li.appendChild(info);
 
-            /* Controls */
-            const controls = document.createElement('div');
-            controls.classList.add('habit-controls');
+
 
             if (!habit.isEditing) {
                 const editBtn = document.createElement('button');
