@@ -5,7 +5,7 @@ import { addXP, calculateStreakBonus, getUserTitle, getCheatDayCost } from './ga
 import { generateAiResponse } from './api.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
 import { saveData } from './data.js';
-import { newHabitContext, habitCompleteContext, habitEditContext, habitDeleteContext } from './ai_prompts.js';
+import { newHabitContext, habitCompleteContext, habitEditContext, habitDeleteContext, cheatDayOnHabitContext } from './ai_prompts.js';
 
 
 export function performDailyResetIfNeeded() {
@@ -79,6 +79,18 @@ export function useCheatDay(habitId) {
   renderHabits();
   updateGamificationDisplay();
   showToast(`Cheat day used! Streak restored at cost of ${cost} XP.`, "success");
+
+  if (geminiApiKey) {
+    const promptContext = cheatDayOnHabitContext(
+        {
+            userTitle: getUserTitle(userProfile.level),
+            habitName: habitName,
+            cost: cost
+        }
+    )
+
+    generateAiResponse(`Cheat day used! Streak restored at cost of ${cost} XP.`, promptContext);
+}
 }
 
 export function handleUserAddHabit() {
