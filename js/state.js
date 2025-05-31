@@ -10,7 +10,8 @@ export let userProfile = {
     lastDailyReset: getTodayDateString(),
     geminiApiKey: null,
     lastLoginDate: null,
-    loginStreak: 0
+    loginStreak: 0,
+    cheatDays: 0
 };
 
 userProfile.xpForNextLevel = calculateXpForNextLevel(userProfile.level);

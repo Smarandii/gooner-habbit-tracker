@@ -1,4 +1,4 @@
-import { habits, userProfile, setHabits, setUserProfile, geminiApiKey, setGeminiApiKey } from './state.js';
+import { habits, userProfile, setHabits, setUserProfile, setGeminiApiKey } from './state.js';
 import { HABITS_LS_KEY, USER_PROFILE_LS_KEY, GEMINI_API_KEY_LS_KEY, AI_COMPANION_NAME } from './config.js';
 import { calculateXpForNextLevel } from './gamification.js';
 import { setAiCompanionName } from './ui.js';

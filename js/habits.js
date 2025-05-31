@@ -1,43 +1,96 @@
 import { habits, userProfile, geminiApiKey, setHabits, setUserProfile } from './state.js';
 import { BASE_XP_PER_HABIT } from './config.js';
 import { renderHabits, showToast, updateGamificationDisplay, getNewHabitInput, clearNewHabitInput } from './ui.js';
-import { addXP, calculateStreakBonus, getUserTitle } from './gamification.js';
+import { addXP, calculateStreakBonus, getUserTitle, getCheatDayCost } from './gamification.js';
 import { generateAiResponse } from './api.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
 import { saveData } from './data.js';
-import { newHabitContext, habitCompleteContext, habitEditContext, habitDeleteContext } from './ai_prompts.js';
+import { newHabitContext, habitCompleteContext, habitEditContext, habitDeleteContext, cheatDayOnHabitContext } from './ai_prompts.js';
 
 
 export function performDailyResetIfNeeded() {
-    const todayDateStr = getTodayDateString();
-    if (userProfile.lastDailyReset !== todayDateStr) {
-        const yesterdayDateStr = getYesterdayDateString();
-        let streaksBroken = 0; let streaksMaintained = 0;
+  const todayDateStr = getTodayDateString();
+  if (userProfile.lastDailyReset !== todayDateStr) {
+    const yesterdayDateStr = getYesterdayDateString();
+    let streaksBroken = 0; let streaksMaintained = 0;
+    const updatedHabits = habits.map(habit => {
+      let newStreak      = habit.streak;
+      let pendingCheat   = false;
+      let prevStreak     = habit.prevStreak || 0;
+      if (habit.lastCompletedDate !== yesterdayDateStr) {
+        const creationDate = new Date(habit.createdAt).toISOString().split('T')[0];
+        if (habit.streak > 0 && creationDate < todayDateStr) {
+          pendingCheat = true;
+          prevStreak   = habit.streak;
+          newStreak    = 0;
+          streaksBroken++;
+        }
+      } else {
+        if (habit.streak > 0) streaksMaintained++;
+      }
+      return { ...habit, completedToday: false, streak: newStreak, pendingCheat, prevStreak };
+    });
 
-        const updatedHabits = habits.map(habit => {
-            let newStreak = habit.streak;
-            if (habit.lastCompletedDate !== yesterdayDateStr) {
-                const habitCreationDate = new Date(habit.createdAt).toISOString().split('T')[0];
-                if (habit.streak > 0 && habitCreationDate < todayDateStr) {
-                    newStreak = 0; streaksBroken++;
-                }
-            } else {
-                if (habit.streak > 0) streaksMaintained++;
-            }
-            return { ...habit, completedToday: false, streak: newStreak };
-        });
+    setHabits(updatedHabits);
+    const newProfile = { ...userProfile, lastDailyReset: todayDateStr };
+    setUserProfile(newProfile);
 
-        setHabits(updatedHabits);
-        const newProfile = { ...userProfile, lastDailyReset: todayDateStr };
-        setUserProfile(newProfile);
+    let resetMsg = "Daily reset. ";
+    if (streaksBroken    > 0) resetMsg += `${streaksBroken} habit streak(s) broken. `;
+    if (streaksMaintained > 0) resetMsg += `${streaksMaintained} maintained. `;
+    if (streaksBroken    > 0) resetMsg += `You can spend XP to save a broken streak (💸 button).`;
+    showToast(resetMsg, "info", 5000);
+    saveData();
+    renderHabits();
+  }
+}
 
-        let resetMsg = "Daily reset. ";
-        if(streaksBroken > 0) resetMsg += `${streaksBroken} habit streak(s) broken. `;
-        if(streaksMaintained > 0) resetMsg += `${streaksMaintained} maintained. `;
-        showToast(resetMsg, "info", 4000);
-        saveData();
-        renderHabits();
-    }
+export function useCheatDay(habitId) {
+  const idx = habits.findIndex(h => h.id === habitId);
+  if (idx === -1) return;
+  const habit = { ...habits[idx] };
+  if (!habit.pendingCheat) return;                 // can't cheat here
+
+  const cost = getCheatDayCost(userProfile.level);
+  const canAfford =
+        userProfile.xp >= cost      // plenty of cumulative XP
+     || userProfile.level  > 0;     // we can drop a level to pay
+
+  if (!canAfford) {
+    showToast(`Not enough XP! Need ${cost}.`, "error");
+    return;
+  }
+
+  // deduct XP and restore streak
+  addXP(-cost);
+  habit.streak        = habit.prevStreak || habit.streak;
+  habit.pendingCheat  = false;
+  habit.prevStreak    = 0;
+  habit.lastCompletedDate = getYesterdayDateString();
+
+  const revisedHabits = [...habits];
+  revisedHabits[idx]  = habit;
+  setHabits(revisedHabits);
+
+  const newProfile = { ...userProfile, cheatDays: (userProfile.cheatDays || 0) + 1 };
+  setUserProfile(newProfile);
+
+  saveData();
+  renderHabits();
+  updateGamificationDisplay();
+  showToast(`Cheat day used! Streak restored at cost of ${cost} XP.`, "success");
+
+  if (geminiApiKey) {
+    const promptContext = cheatDayOnHabitContext(
+        {
+            userTitle: getUserTitle(userProfile.level),
+            habitName: habit.name,
+            cost: cost
+        }
+    )
+
+    generateAiResponse(`Cheat day used! Streak restored at cost of ${cost} XP.`, promptContext);
+}
 }
 
 export function handleUserAddHabit() {
@@ -62,17 +115,23 @@ export function handleUserAddHabit() {
 }
 
 function _addHabitToList(name) {
-    const newHabit = {
-        id: Date.now().toString(), name: name, createdAt: new Date().toISOString(),
-        baseXpValue: BASE_XP_PER_HABIT, completedToday: false, streak: 0, lastCompletedDate: null,
-        isEditing: false
-    };
-    const updatedHabits = [...habits, newHabit];
-    setHabits(updatedHabits);
-
-    saveData();
-    renderHabits();
-    showToast(`Habit "${name}" added!`);
+  const newHabit = {
+    id: Date.now().toString(),
+    name,
+    createdAt: new Date().toISOString(),
+    baseXpValue: BASE_XP_PER_HABIT,
+    completedToday: false,
+    streak: 0,
+    lastCompletedDate: null,
+    isEditing: false,
+    pendingCheat: false,
+    prevStreak: 0
+  };
+  const updatedHabits = [...habits, newHabit];
+  setHabits(updatedHabits);
+  saveData();
+  renderHabits();
+  showToast(`Habit "${name}" added!`);
 }
 
 export function toggleHabitCompletion(habitId) {
@@ -170,32 +229,6 @@ export function cancelHabitEdit(habitId) {
     );
     setHabits(updatedHabits);
     renderHabits();
-}
-
-export function moveHabitUp(habitId) {
-    const index = habits.findIndex(h => h.id === habitId);
-    if (index > 0) {
-        const updatedHabits = [...habits];
-        const temp = updatedHabits[index - 1];
-        updatedHabits[index - 1] = updatedHabits[index];
-        updatedHabits[index] = temp;
-        setHabits(updatedHabits);
-        saveData();
-        renderHabits();
-    }
-}
-
-export function moveHabitDown(habitId) {
-    const index = habits.findIndex(h => h.id === habitId);
-    if (index < habits.length - 1 && index !== -1) {
-        const updatedHabits = [...habits];
-        const temp = updatedHabits[index + 1];
-        updatedHabits[index + 1] = updatedHabits[index];
-        updatedHabits[index] = temp;
-        setHabits(updatedHabits);
-        saveData();
-        renderHabits();
-    }
 }
 
 // MODIFIED FUNCTION

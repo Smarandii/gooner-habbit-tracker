@@ -44,6 +44,15 @@ export function loginContext({ userTitle, loginStreak, today }) {
          `Their current meetings streak is ${loginStreak} days. Today is ${today}.`;
 }
 
+export function cheatDayOnHabitContext({
+	userTitle,
+	habitName,
+	cost
+}) {
+	return `Your subordinate "${userTitle}", just uset cheat day function on habit: "${habitName}". ` +
+	`This costed them ${cost} XP. This action allowed them to legally keep their habit streak.`;
+}
+
 export function newHabitContext({ userTitle, habitName }) {
   return `Your subordinate "${userTitle}", just added a new habit: "${habitName}".`;
 }
