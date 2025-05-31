@@ -24,6 +24,7 @@ export function initUiElements() {
     domElements.xpToNextLevelEl = document.getElementById('xpToNextLevel');
     domElements.xpBarEl = document.getElementById('xpBar');
     domElements.loginStreakEl = document.getElementById('loginStreak');
+    domElements.cheatDaysEl = document.getElementById('cheatDays');
     domElements.toastNotificationEl = document.getElementById('toastNotification');
     domElements.aiAvatarEl = document.getElementById('aiAvatar');
     domElements.aiNameEl = document.getElementById('aiName');
@@ -109,15 +110,20 @@ export function renderHabits() {
             }
             li.appendChild(info);
 
-
-
             if (!habit.isEditing) {
                 const editBtn = document.createElement('button');
-                editBtn.innerHTML = '✏️';   // icon
+                editBtn.innerHTML = '✏️';
                 editBtn.title = "Edit habit";
                 editBtn.addEventListener('click', () => startEditHabit(habit.id));
                 controls.appendChild(editBtn);
             }
+
+            if (habit.pendingCheat) {
+        		const cheatBtn = document.createElement('button');
+        		cheatBtn.innerHTML = '💸';
+        		cheatBtn.title = `Use cheat day (cost ${getCheatDayCost(userProfile.level)} XP)`;
+        		cheatBtn.addEventListener('click', () => useCheatDay(habit.id)); controls.appendChild(cheatBtn);
+      		}
 
             const delBtn = document.createElement('button');
             delBtn.innerHTML = '🗑️';
@@ -154,6 +160,7 @@ export function updateGamificationDisplay() {
     domElements.xpBarEl.textContent = `${Math.floor(xpProgressPercent)}%`;
     domElements.xpBarEl.classList.toggle('full', xpProgressPercent >= 100);
     domElements.loginStreakEl.textContent = userProfile.loginStreak;
+    domElements.cheatDaysEl.textContent  = userProfile.cheatDays || 0;
 }
 
 let toastTimeout;

@@ -7,6 +7,8 @@ export const XP_FOR_DAILY_LOGIN = 5;
 export const XP_FOR_LEVEL_1 = 100;
 export const XP_GROWTH_FACTOR = 1.2;
 
+export const BASE_CHEAT_COST = 50;
+
 export const AVATAR_IMAGES = {
     level_0: { attitude: "hostile", file: "hostile_0.png" },
     level_3: { attitude: "less_hostile", file: "hostile_1.png" },

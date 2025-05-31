@@ -1,5 +1,5 @@
 import { userProfile, setUserProfile, geminiApiKey } from './state.js';
-import { XP_FOR_LEVEL_1, XP_GROWTH_FACTOR, LEVEL_TITLES, ATTITUDE_MAPPING } from './config.js';
+import { XP_FOR_LEVEL_1, XP_GROWTH_FACTOR, LEVEL_TITLES, ATTITUDE_MAPPING, BASE_CHEAT_COST } from './config.js';
 import { showToast, updateAiAvatarImage } from './ui.js';
 import { generateAiResponse } from './api.js';
 import { saveData } from './data.js';
@@ -8,6 +8,10 @@ import { levelUpContext } from './ai_prompts.js';
 export function calculateXpForNextLevel(currentLevel) {
     if (currentLevel === 0) return XP_FOR_LEVEL_1;
     return Math.floor(XP_FOR_LEVEL_1 * Math.pow(XP_GROWTH_FACTOR, currentLevel));
+}
+
+export function getCheatDayCost(level) {
+  return Math.ceil(BASE_CHEAT_COST * (1 + level / 5));
 }
 
 export function addXP(amount) {
