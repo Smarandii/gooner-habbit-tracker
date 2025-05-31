@@ -15,15 +15,45 @@ export function getCheatDayCost(level) {
 }
 
 export function addXP(amount) {
-    const newProfile = { ...userProfile };
-    newProfile.xp += amount;
-    newProfile.currentLevelXP += amount;
+  /*
+   * Handles both XP gain and XP loss.
+   * If XP goes negative within the current level, we borrow from previous levels
+   * (level‑down) until the debt is paid or Level 0 is reached.
+   */
+  const prof = { ...userProfile };
+  prof.xp            = Math.max(0, prof.xp + amount);  // keep global XP non‑negative
+  prof.currentLevelXP += amount;
 
-    if (newProfile.currentLevelXP < 0) newProfile.currentLevelXP = Math.max(0, newProfile.currentLevelXP);
-    newProfile.xp = Math.max(0, newProfile.xp);
+  // ----- LEVEL‑UP loop (unchanged) -----
+  while (prof.currentLevelXP >= prof.xpForNextLevel && prof.xpForNextLevel > 0) {
+    prof.currentLevelXP -= prof.xpForNextLevel;
+    prof.level++;
+    prof.xpForNextLevel  = calculateXpForNextLevel(prof.level);
+    showToast(`LEVEL UP! You are now Level ${prof.level}: ${getUserTitle(prof.level)}! 🎉`, "success", 5000);
+    updateAiAvatarImage(prof.level);
+    if (geminiApiKey) {
+      const promptContext = levelUpContext({ level: prof.level });
+      generateAiResponse("level_up", promptContext);
+    }
+  }
 
-    setUserProfile(newProfile); // Update state
-    checkLevelUp();
+  // ----- LEVEL‑DOWN loop (NEW) -----
+  while (prof.currentLevelXP < 0 && prof.level > 0) {
+    prof.level--;                                  // drop a level first
+    const prevLevelXp = calculateXpForNextLevel(prof.level);
+    prof.currentLevelXP += prevLevelXp;            // borrow from the previous level bucket
+    prof.xpForNextLevel = prevLevelXp;
+    showToast(`Ouch! You dropped to Level ${prof.level}: ${getUserTitle(prof.level)}.`, "error", 4000);
+    updateAiAvatarImage(prof.level);
+  }
+
+  // clamp again just in case
+  if (prof.currentLevelXP < 0)    prof.currentLevelXP = 0;
+  if (prof.level === 0)          prof.xpForNextLevel = calculateXpForNextLevel(0);
+
+  setUserProfile(prof);
+  saveData();
+  updateGamificationDisplay();
 }
 
 export function checkLevelUp() {

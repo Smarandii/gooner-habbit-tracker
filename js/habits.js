@@ -108,8 +108,8 @@ function _addHabitToList(name) {
     streak: 0,
     lastCompletedDate: null,
     isEditing: false,
-    /* 🆕 */ pendingCheat: false,
-    /* 🆕 */ prevStreak: 0
+    pendingCheat: false,
+    prevStreak: 0
   };
   const updatedHabits = [...habits, newHabit];
   setHabits(updatedHabits);
