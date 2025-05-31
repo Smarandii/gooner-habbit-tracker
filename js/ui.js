@@ -8,7 +8,8 @@ import {
     cancelHabitEdit,
     moveHabitUp,
     moveHabitDown,
-    updateHabitOrder
+    updateHabitOrder,
+    useCheatDay
 } from './habits.js';
 import { getUserTitle, getCheatDayCost } from './gamification.js';
 
