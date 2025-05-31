@@ -1,6 +1,6 @@
 import { userProfile, setUserProfile, geminiApiKey } from './state.js';
 import { XP_FOR_LEVEL_1, XP_GROWTH_FACTOR, LEVEL_TITLES, ATTITUDE_MAPPING, BASE_CHEAT_COST } from './config.js';
-import { showToast, updateAiAvatarImage } from './ui.js';
+import { showToast, updateAiAvatarImage, updateGamificationDisplay } from './ui.js';
 import { generateAiResponse } from './api.js';
 import { saveData } from './data.js';
 import { levelUpContext } from './ai_prompts.js';
