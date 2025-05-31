@@ -10,7 +10,7 @@ import {
     moveHabitDown,
     updateHabitOrder
 } from './habits.js';
-import { getUserTitle } from './gamification.js';
+import { getUserTitle, getCheatDayCost } from './gamification.js';
 
 let sortableInstance = null;
 export const domElements = {}; // Populated by initUiElements
