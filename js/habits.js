@@ -84,7 +84,7 @@ export function useCheatDay(habitId) {
     const promptContext = cheatDayOnHabitContext(
         {
             userTitle: getUserTitle(userProfile.level),
-            habitName: habitName,
+            habitName: habit.name,
             cost: cost
         }
     )
