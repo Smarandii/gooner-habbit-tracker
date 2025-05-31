@@ -52,7 +52,11 @@ export function useCheatDay(habitId) {
   if (!habit.pendingCheat) return;                 // can't cheat here
 
   const cost = getCheatDayCost(userProfile.level);
-  if (userProfile.xp < cost) {
+  const canAfford =
+        userProfile.xp >= cost      // plenty of cumulative XP
+     || userProfile.level  > 0;     // we can drop a level to pay
+
+  if (!canAfford) {
     showToast(`Not enough XP! Need ${cost}.`, "error");
     return;
   }
