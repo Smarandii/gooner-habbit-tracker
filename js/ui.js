@@ -110,19 +110,19 @@ export function renderHabits() {
             li.appendChild(info);
 
             if (!habit.isEditing) {
-                const editBtn = document.createElement('button');
-                editBtn.innerHTML = '✏️';
-                editBtn.title = "Edit habit";
-                editBtn.addEventListener('click', () => startEditHabit(habit.id));
-                controls.appendChild(editBtn);
+              const editBtn = document.createElement('button');
+              editBtn.innerHTML = '✏️';
+              editBtn.title = "Edit habit";
+              editBtn.addEventListener('click', () => startEditHabit(habit.id));
+              controls.appendChild(editBtn);
             }
 
             if (habit.pendingCheat) {
-        		const cheatBtn = document.createElement('button');
-        		cheatBtn.innerHTML = '💸';
-        		cheatBtn.title = `Use cheat day (cost ${getCheatDayCost(userProfile.level)} XP)`;
-        		cheatBtn.addEventListener('click', () => useCheatDay(habit.id)); controls.appendChild(cheatBtn);
-      		}
+              const cheatBtn = document.createElement('button');
+              cheatBtn.innerHTML = '💸';
+              cheatBtn.title = `Use cheat day (cost ${getCheatDayCost(userProfile.level)} XP)`;
+              cheatBtn.addEventListener('click', () => useCheatDay(habit.id)); controls.appendChild(cheatBtn);
+            }
 
             const delBtn = document.createElement('button');
             delBtn.innerHTML = '🗑️';
