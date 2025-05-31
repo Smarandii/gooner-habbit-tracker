@@ -6,8 +6,6 @@ import {
     startEditHabit,
     saveHabitEdit,
     cancelHabitEdit,
-    moveHabitUp,
-    moveHabitDown,
     updateHabitOrder,
     useCheatDay
 } from './habits.js';

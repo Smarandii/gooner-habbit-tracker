@@ -1,7 +1,6 @@
 import { geminiApiKey, isAiThinking, setIsAiThinking, userProfile, setGeminiApiKey } from './state.js';
-import { AI_COMPANION_NAME, ATTITUDE_MAPPING } from './config.js';
+import { AI_COMPANION_NAME } from './config.js';
 import { displayAiMessage, promptForApiKeyModal, showToast } from './ui.js';
-import { getUserTitle, getCompanionAttitude } from './title_helpers.js';
 import { saveData } from './data.js';
 import { rootPrompt } from './ai_prompts.js';
 

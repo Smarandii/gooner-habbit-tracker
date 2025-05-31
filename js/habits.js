@@ -215,32 +215,6 @@ export function cancelHabitEdit(habitId) {
     renderHabits();
 }
 
-export function moveHabitUp(habitId) {
-    const index = habits.findIndex(h => h.id === habitId);
-    if (index > 0) {
-        const updatedHabits = [...habits];
-        const temp = updatedHabits[index - 1];
-        updatedHabits[index - 1] = updatedHabits[index];
-        updatedHabits[index] = temp;
-        setHabits(updatedHabits);
-        saveData();
-        renderHabits();
-    }
-}
-
-export function moveHabitDown(habitId) {
-    const index = habits.findIndex(h => h.id === habitId);
-    if (index < habits.length - 1 && index !== -1) {
-        const updatedHabits = [...habits];
-        const temp = updatedHabits[index + 1];
-        updatedHabits[index + 1] = updatedHabits[index];
-        updatedHabits[index] = temp;
-        setHabits(updatedHabits);
-        saveData();
-        renderHabits();
-    }
-}
-
 // MODIFIED FUNCTION
 export function deleteHabit(habitId) {
     const habitIndex = habits.findIndex(h => h.id === habitId);
