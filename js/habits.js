@@ -1,7 +1,7 @@
 import { habits, userProfile, geminiApiKey, setHabits, setUserProfile } from './state.js';
 import { BASE_XP_PER_HABIT } from './config.js';
 import { renderHabits, showToast, updateGamificationDisplay, getNewHabitInput, clearNewHabitInput } from './ui.js';
-import { addXP, calculateStreakBonus, getUserTitle } from './gamification.js';
+import { addXP, calculateStreakBonus, getUserTitle, getCheatDayCost } from './gamification.js';
 import { generateAiResponse } from './api.js';
 import { getTodayDateString, getYesterdayDateString } from './utils.js';
 import { saveData } from './data.js';
